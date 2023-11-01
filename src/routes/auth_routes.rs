@@ -1,3 +1,4 @@
+use crate::components::pages::auth::login::Login;
 use yew::{html, Html};
 use yew_router::{prelude::Redirect, Routable};
 
@@ -17,7 +18,7 @@ pub enum AuthRoute {
 
 pub fn switch_auth(routes: AuthRoute) -> Html {
     match routes {
-        AuthRoute::Login => html! {<h1>{"Login"}</h1>},
+        AuthRoute::Login => html! { <Login /> },
         AuthRoute::ResetPassword => html! {<h1>{"Reset Password"}</h1>},
         AuthRoute::SetNewPassword => html! {<h1>{"Set new Password"}</h1>},
         // AuthRoute::SetNewPasswordDynamic { path } => {
