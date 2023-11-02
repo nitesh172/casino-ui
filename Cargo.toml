@@ -6,11 +6,13 @@ edition = "2021"
 [dependencies]
 dotenv = "0.15.0"
 gloo = "0.10.0"
+iconify = "0.2.5"
 serde = "1.0.190"
 serde_json = "1.0.108"
 wasm-bindgen = "0.2.87"
 web-sys = "0.3.64"
-yew = "0.21.0"
+yew = { version = "0.21.0", features = ["csr"] }
 yew-router = "0.18.0"
-yew_icons = { version = "0.8.0", features = ["LucideHeart", "HeroiconsSolidClock"] }
+
+yew_icons = { version = "0.8.0", features = ["HeroiconsOutlineDocument","OcticonsTrash24", "HeroiconsSolidPlusCircle", "FontAwesomeSolidUserLarge", "LucideCrown", "FontAwesomeSolidFlag", "FontAwesomeSolidCircleXmark", "LucideHeart", "HeroiconsSolidClock"] }
 yewdux = "0.9.4"

@@ -18,7 +18,7 @@ pub enum ButtonStyle {
 
 #[derive(Properties, PartialEq)]
 pub struct ButtonProps {
-    pub text: String,
+    pub label: String,
     pub on_click: Callback<()>,
     pub style: ButtonStyle,
     pub size: ButtonSize,
@@ -80,7 +80,7 @@ pub fn Button(props: &ButtonProps) -> Html {
             disabled={props.disabled}>
             <div class="flex items-center justify-center space-x-2 ">
            { props.icon_left.clone() } <span>
-            { &props.text }
+            { &props.label }
         </span>
         { props.icon_right.clone() }
         </div>

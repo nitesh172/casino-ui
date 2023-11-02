@@ -6,6 +6,9 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
+      backgroundImage: {
+        'banner-woman': "url('img/woman.png')",
+      },
       fontFamily: { sans: ['Nunito Sans', 'sans'] },
       fontSize: {
         11: '11px',
