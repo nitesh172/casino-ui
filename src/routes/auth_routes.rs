@@ -1,4 +1,5 @@
 use crate::components::pages::auth::login::Login;
+use crate::components::pages::auth::{forgot_password::ForgotPassword, set_password::SetPassword};
 use yew::{html, Html};
 use yew_router::{prelude::Redirect, Routable};
 
@@ -6,9 +7,9 @@ use yew_router::{prelude::Redirect, Routable};
 pub enum AuthRoute {
     #[at("/")]
     Login,
-    #[at("/reset-password")]
-    ResetPassword,
-    #[at("/new-password")]
+    #[at("/forgot-password")]
+    ForgotPassword,
+    #[at("/set-password")]
     SetNewPassword,
     // #[at("/new-password/*path")]
     // SetNewPasswordDynamic { path: String },
@@ -19,11 +20,8 @@ pub enum AuthRoute {
 pub fn switch_auth(routes: AuthRoute) -> Html {
     match routes {
         AuthRoute::Login => html! { <Login /> },
-        AuthRoute::ResetPassword => html! {<h1>{"Reset Password"}</h1>},
-        AuthRoute::SetNewPassword => html! {<h1>{"Set new Password"}</h1>},
-        // AuthRoute::SetNewPasswordDynamic { path } => {
-        //     html! {<h1>{"Set new Password : "} {path}</h1>}
-        // }
+        AuthRoute::ForgotPassword => html! {<ForgotPassword />},
+        AuthRoute::SetNewPassword => html! {< SetPassword />},
         AuthRoute::NotFound { path: _ } => html! {<Redirect<AuthRoute> to={AuthRoute::Login} /> },
     }
 }

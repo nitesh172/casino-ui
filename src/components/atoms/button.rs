@@ -49,7 +49,7 @@ impl ButtonProps {
     pub fn size_string(&self) -> String {
         match self.size {
             ButtonSize::Small => "w-32 h-7 text-12-16-400".to_owned(),
-            ButtonSize::Large => "w-44 h-10 text-16-21-400".to_owned(),
+            ButtonSize::Large => "w-72 h-10 text-16-21-400".to_owned(),
         }
     }
 }
@@ -75,7 +75,7 @@ pub fn Button(props: &ButtonProps) -> Html {
 
     html! {
         <button
-            class={format!("button rounded {} {} {} space-x-2", size_class, style_class, disabled_style)}
+            class={format!("button rounded {} {} {} space-x-2 p-0", size_class, style_class, disabled_style)}
             onclick={button_onclick}
             disabled={props.disabled}>
             <div class="flex items-center justify-center space-x-2 ">

@@ -1,40 +1,51 @@
+mod apis;
 mod components;
 mod routes;
+mod stores;
+mod utils;
 
+use components::organisms::navbar::Navbar;
+use gloo_console::log;
 use routes::{
-    app_routes::{switch_main, MainRoute},
     auth_routes::{switch_auth, AuthRoute},
+    main_routes::{switch_main, MainRoute},
 };
+use stores::auth_store::AuthStore;
 use yew::prelude::*;
 use yew_router::*;
-
-enum AuthState {
-    Authenticated,
-    Unauthenticated,
-}
+use yewdux::prelude::*;
 
 #[function_component]
 pub fn App() -> Html {
-    let auth_state: AuthState = if is_user_authenticated() {
-        AuthState::Authenticated
-    } else {
-        AuthState::Unauthenticated
-    };
+    let is_auth = use_state(|| false);
+    let (store, _) = use_store::<AuthStore>();
+    let is_auth_cloned = is_auth.clone();
+    let is_authenticated = store.is_authenticated.clone();
+
+    use_effect_with(is_authenticated, move |_| {
+        log!("Rendered", is_authenticated);
+        if store.is_authenticated {
+            is_auth_cloned.set(true);
+        } else {
+            is_auth_cloned.set(false);
+        }
+    });
 
     html! {
         <BrowserRouter>
-            { match auth_state {
-                AuthState::Authenticated => {
-                    html! { <Switch<MainRoute> render={switch_main} /> }
+            { match  *is_auth {
+                true => {
+                    html! {
+                        <>
+                        <Navbar />
+                        <Switch<MainRoute> render={switch_main} />
+                        </>
+                    }
                 }
-                AuthState::Unauthenticated => {
+                false => {
                     html! { <Switch<AuthRoute> render={switch_auth} /> }
                 }
             }}
         </BrowserRouter>
     }
-}
-
-fn is_user_authenticated() -> bool {
-    false
 }

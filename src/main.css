@@ -4,6 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .toggle-checkbox:checked {
+    @apply right-0 border-primary;
+  }
+
+  .toggle-checkbox:checked + .toggle-label {
+    @apply bg-primary;
+  }
+}
+
+/* 
 .text-11-15-300 {
     font-family: 'Nunito Sans';
     font-size: 11px;
@@ -60,7 +71,4 @@
     font-weight: 700;
   }
   
- 
-  
-  
-  
+  */
