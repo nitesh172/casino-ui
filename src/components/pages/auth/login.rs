@@ -1,19 +1,15 @@
 use crate::{
-    apis::user::api_login,
-    render_svg,
-    routes::{auth_routes::AuthRoute::ForgotPassword, main_routes::MainRoute::Overview},
+    apis::user::api_login, render_svg, routes::auth_routes::AuthRoute::ForgotPassword,
     stores::auth_store::AuthStore,
 };
 use gloo_console::log;
 use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
 use yew::{platform::spawn_local, prelude::*};
-use yew_router::{navigator, prelude::*};
-use yewdux::{prelude::use_store, store};
+use yew_router::prelude::*;
+use yewdux::prelude::*;
 
 #[function_component(Login)]
 pub fn login() -> Html {
-    let (_, auth_dispatch) = use_store::<AuthStore>();
-
     let password_state = use_state(String::default);
     let email_state = use_state(String::default);
 
@@ -22,7 +18,7 @@ pub fn login() -> Html {
 
     let forgot_route_handler = {
         let history = history.clone();
-        Callback::from(move |_| history.replace(&ForgotPassword))
+        Callback::from(move |_| history.push(&ForgotPassword))
     };
 
     let on_email_input = {
@@ -49,11 +45,12 @@ pub fn login() -> Html {
         })
     };
 
+    let (_, auth_dispatch) = use_store::<AuthStore>();
+
     let on_submit = {
         let email = (*email_state).clone();
         let password = (*password_state).clone();
-        let auth_dispatch = auth_dispatch.clone();
-        let history = history.clone();
+        let store_dispatch = auth_dispatch.clone();
 
         Callback::from(move |event: SubmitEvent| {
             event.prevent_default();
@@ -68,23 +65,18 @@ pub fn login() -> Html {
 
             let email: String = email.clone();
             let password: String = password.clone();
-            let auth_dispatch = auth_dispatch.clone();
-            let history = history.clone();
-            // spawn_local(async move {
-            //     let response = api_login(email, password).await;
+            let store_dispatch = store_dispatch.clone();
 
-            //     auth_dispatch.reduce_mut_callback(|store| {
-            //         store.is_authenticated = !store.is_authenticated.clone();
-            //         store.token = response.unwrap().token.to_string();
-            //     });
-            // });
             spawn_local(async move {
                 let response = api_login(email, password).await;
 
-                auth_dispatch.reduce_mut_callback_with(move |store, _: Event| {
-                    store.is_authenticated = true;
-                    store.token = response.as_ref().unwrap().token.clone();
-                });
+                match response {
+                    Ok(response) => store_dispatch.reduce_mut(move |store| {
+                        store.is_authenticated = true;
+                        store.token = response.token.clone();
+                    }),
+                    Err(e) => log!(e.to_string()),
+                }
             });
         })
     };

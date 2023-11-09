@@ -1,10 +1,16 @@
-use crate::render_svg;
+use crate::{apis::user::api_reset_password, render_svg, routes::auth_routes::AuthRoute};
 use gloo_console::log;
 use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
-use yew::prelude::*;
+use yew::{platform::spawn_local, prelude::*};
+use yew_router::prelude::use_navigator;
+
+#[derive(Properties, PartialEq, Clone)]
+pub struct Props {
+    pub token: String,
+}
 
 #[function_component(SetPassword)]
-pub fn set_password() -> Html {
+pub fn set_password(props: &Props) -> Html {
     let password_handle: UseStateHandle<String> = use_state(String::default);
     let confirm_password_handle = use_state(String::default);
 
@@ -27,6 +33,8 @@ pub fn set_password() -> Html {
         let passwords_match = passwords_match.clone();
         let confirm_password_handle = confirm_password_handle.clone();
 
+        let password_handle_clone = password_handle.clone();
+
         Callback::from(move |event: InputEvent| {
             let value = event
                 .target()
@@ -34,7 +42,7 @@ pub fn set_password() -> Html {
                 .unchecked_into::<HtmlInputElement>()
                 .value();
 
-            password_handle.set(value.clone());
+            password_handle_clone.set(value.clone());
 
             let is_uppercase = validate_contains_uppercase(&value);
             let is_special = validate_contains_special(&value);
@@ -82,15 +90,36 @@ pub fn set_password() -> Html {
         let contains_special = (*contains_special).clone();
         let contains_length = (*contains_length).clone();
         let passwords_match = (*passwords_match).clone();
+        let password: String = password.clone();
+        let confirm_password = (*confirm_password_handle).clone();
+        let password_reset_token = props.token.clone();
+        let history = use_navigator().unwrap();
 
-        Callback::from(move |event: MouseEvent| {
+        Callback::from(move |_event: MouseEvent| {
             if contains_number
                 && contains_special
                 && contains_uppercase
                 && contains_length
                 && passwords_match
             {
-                log!("Good to go");
+                let password = password.clone();
+                let password_confirm = confirm_password.clone();
+                let password_reset_token = password_reset_token.clone();
+                let history = history.clone();
+
+                spawn_local(async move {
+                    let response =
+                        api_reset_password(password_reset_token, password, password_confirm).await;
+
+                    match response {
+                        Ok(response) => {
+                            log!(response.message.to_string());
+
+                            history.replace(&AuthRoute::Login);
+                        }
+                        Err(e) => log!("Error: ", e.to_string()),
+                    }
+                });
             }
         })
     };

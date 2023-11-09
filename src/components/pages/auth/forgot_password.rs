@@ -1,29 +1,56 @@
 // use gloo::console::log;
 // use web_sys::HtmlInputElement;
-use crate::render_svg;
-use yew::prelude::*;
+use crate::{apis::user::api_forgot_password, render_svg};
+use gloo_console::log;
+use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
+use yew::{platform::spawn_local, prelude::*};
 
 #[function_component(ForgotPassword)]
 pub fn forgot_password() -> Html {
-    // let password_handle: UseStateHandle<bool> = use_state(bool::default);
-    // let password: bool = (*is_password_hidden_state).clone();
+    let email_handle = use_state(String::default);
 
-    // let onclick_handle ={
-    //     let is_password_hidden_state = is_password_hidden_state.clone();
+    let on_email_input = {
+        let email_handle = email_handle.clone();
+        Callback::from(move |event: InputEvent| {
+            let value = event
+                .target()
+                .unwrap()
+                .unchecked_into::<HtmlInputElement>()
+                .value();
+            email_handle.set(value);
+        })
+    };
 
-    //     Callback::from(|event: MouseEvent| {
-    //       let input = e.target_dyn_into::<HtmlInputElement>();
+    let on_submit = {
+        let email = (*email_handle).clone();
+        log!("Hii");
+        Callback::from(move |event: SubmitEvent| {
+            event.prevent_default();
+            log!("Hii");
+            if email.is_empty() {
+                return;
+            }
 
-    //       if let Some(input) = input {
-    //         is_password_hidden.set(input.value());
-    //       }
-    //     })
-    // };
+            let email: String = email.clone();
+            spawn_local(async move {
+                let response = api_forgot_password(email).await;
+
+                match response {
+                    Ok(response) => {
+                        log!(response.message.to_string());
+                    }
+                    Err(e) => log!("Error: ", e.to_string()),
+                }
+            });
+        })
+    };
+
+    let email = (*email_handle).clone();
 
     html! {
         <div class="flex min-h-screen bg-banner-woman bg-cover" >
             <div class="flex flex-col bg-white rounded-r px-4 justify-center w-screen md:px-16 md:w-auto">
-                <form class="space-y-7">
+                <form class="space-y-7" onsubmit={on_submit.clone()}>
                     <div class="space-y-3 max-w-xs">
                         <h1 class="text-24 leading-32 font-sans font-600 text-grey-shade-1">{"Forgot password?"}</h1>
                         <p class="text-14 leading-20 font-sans font-400 text-grey-shade-5">{"Enter the registered email ID"}</p>
@@ -42,6 +69,8 @@ pub fn forgot_password() -> Html {
                                     id="email"
                                     name="email"
                                     placeholder="Email ID"
+                                    oninput={on_email_input}
+                                    value={email.clone()}
                                     class="px-3.5 py-3 w-80 placeholder:text-grey-shade-6 text-14 leading20
                                     bg-white
                                     h-10 
@@ -54,7 +83,8 @@ pub fn forgot_password() -> Html {
                     </div>
                     <div>
                         <button
-                            type="button"
+                            type="submit"
+                            onsubmit={on_submit.clone()}
                             class="cursor-pointer p-2 text-16 font-sans     font-400 text-grey-shade-14 leading-20 bg-primary w-full rounded"
                         >
                             {"Submit"}

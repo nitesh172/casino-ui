@@ -9,10 +9,8 @@ pub enum AuthRoute {
     Login,
     #[at("/forgot-password")]
     ForgotPassword,
-    #[at("/set-password")]
-    SetNewPassword,
-    // #[at("/new-password/*path")]
-    // SetNewPasswordDynamic { path: String },
+    #[at("/new-password/:token")]
+    SetNewPassword { token: String },
     #[at("/*path")]
     NotFound { path: String },
 }
@@ -21,7 +19,7 @@ pub fn switch_auth(routes: AuthRoute) -> Html {
     match routes {
         AuthRoute::Login => html! { <Login /> },
         AuthRoute::ForgotPassword => html! {<ForgotPassword />},
-        AuthRoute::SetNewPassword => html! {< SetPassword />},
+        AuthRoute::SetNewPassword { token } => html! {< SetPassword  token={token} />},
         AuthRoute::NotFound { path: _ } => html! {<Redirect<AuthRoute> to={AuthRoute::Login} /> },
     }
 }

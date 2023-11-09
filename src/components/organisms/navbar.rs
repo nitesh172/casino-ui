@@ -1,16 +1,13 @@
-use crate::routes::main_routes::MainRoute::{
-    self, Customers, Games, Integrations, Overview, Participants, Settings, Teams, Tickets,
+use crate::{
+    render_svg,
+    routes::main_routes::MainRoute::{
+        self, Customers, Games, Integrations, Overview, Participants, Settings, Teams, Tickets,
+    },
 };
 use gloo_console::log;
 // use crate::routes::main_routes::MainRoute::Overview;
 use yew::prelude::*;
 use yew_router::{prelude::*, router::RouterProps};
-
-macro_rules! render_svg {
-    ($($rest:expr),*) => {
-        Html::from_html_unchecked(iconify::svg!($($rest),*).into())
-    };
-}
 
 #[function_component(Navbar)]
 pub fn navbar() -> Html {
