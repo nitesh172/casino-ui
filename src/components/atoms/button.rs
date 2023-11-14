@@ -1,89 +1,83 @@
 use yew::prelude::*;
 
-#[derive(PartialEq)]
-pub enum ButtonSize {
-    Large,
-    Small,
+#[derive(Clone, PartialEq)]
+pub enum ButtonType {
+    Submit,
+    Button,
 }
 
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum ButtonStyle {
-    PrimaryFilled,
-    PrimaryStroked,
+    PrimaryFill,
+    PrimaryOutlined,
     PrimaryLink,
-    SecondaryFilled,
-    SecondaryStroked,
+    SecondaryFill,
+    SecondaryOutlined,
     SecondaryLink,
 }
 
-#[derive(Properties, PartialEq)]
+#[derive(Properties, PartialEq, Clone)]
 pub struct ButtonProps {
-    pub label: String,
-    pub on_click: Callback<()>,
-    pub style: ButtonStyle,
-    pub size: ButtonSize,
+    pub label: AttrValue,
+    pub button_type: Option<ButtonType>,
+    pub button_style: Option<ButtonStyle>,
     #[prop_or_default]
-    pub disabled: bool,
-    #[prop_or_default]
-    pub icon_left: Html,
-    #[prop_or_default]
-    pub icon_right: Html,
+    pub on_click: Option<Callback<MouseEvent>>,
 }
 
 impl ButtonProps {
-    pub fn style_string(&self) -> String {
-        match self.style {
-            ButtonStyle::PrimaryFilled => "bg-primary text-grey-shade-14".to_owned(),
-            ButtonStyle::PrimaryStroked => {
-                "bg-secondary text-primary border  border-primary".to_owned()
-            }
-            ButtonStyle::PrimaryLink => "bg-secondary text-primary ".to_owned(),
-            ButtonStyle::SecondaryFilled => "bg-grey-shade-0 text-grey-shade-14".to_owned(),
-            ButtonStyle::SecondaryStroked => {
-                "text-grey-shade-0 border border-grey-shade-0".to_owned()
-            }
-            ButtonStyle::SecondaryLink => "text-grey-shade-0".to_owned(),
+    fn button_type_string(&self) -> String {
+        match self.button_type {
+            Some(ButtonType::Submit) => "submit".to_owned(),
+            _ => "button".to_owned(),
         }
     }
 
-    pub fn size_string(&self) -> String {
-        match self.size {
-            ButtonSize::Small => "w-32 h-7 text-12-16-400".to_owned(),
-            ButtonSize::Large => "w-72 h-10 text-16-21-400".to_owned(),
+    fn handle_click(&self) -> Callback<MouseEvent> {
+        match &self.on_click {
+            Some(callback) => callback.clone(),
+            None => Callback::noop(),
+        }
+    }
+
+    fn button_style_string(&self) -> String {
+        let default_style = "cursor-pointer p-2 rounded w-full focus-outline-none".to_owned();
+
+        let primary_filled: Classes =
+            " text-16 font-sans font-400 text-grey-shade-14 leading-20 bg-primary"
+                .split_whitespace()
+                .collect();
+        let secondary_filled: Classes =
+            "text-16 font-sans font-400 text-grey-shade-14 leading-20 bg-grey-shade-0 hover:shadow-lg hover:shadow-grey-shade-0/15 "
+                .split_whitespace()
+                .collect();
+
+        match self.button_style {
+            Some(ButtonStyle::PrimaryFill) => {
+                format!("{} {}", default_style, primary_filled.to_string())
+            }
+            Some(ButtonStyle::SecondaryFill) => {
+                format!("{} {}", default_style, secondary_filled.to_string())
+            }
+            _ => format!("{} {}", default_style, primary_filled.to_string()),
         }
     }
 }
 
-#[function_component]
-pub fn Button(props: &ButtonProps) -> Html {
-    let style_class = props.style_string();
-    let size_class = props.size_string();
-
-    let disabled_style = if props.disabled {
-        match &props.style {
-            ButtonStyle::PrimaryFilled => "opacity-50".to_owned(),
-            _ => "".to_owned(),
-        }
-    } else {
-        "".to_owned()
-    };
-
-    let onclick: Callback<()> = props.on_click.clone();
-    let button_onclick: Callback<MouseEvent> = Callback::from(move |_| {
-        onclick.emit(());
-    });
+#[function_component(Button)]
+pub fn button(props: &ButtonProps) -> Html {
+    let label = &props.label;
+    let on_click = props.handle_click();
+    let style = props.button_style_string();
+    let butto_type = props.button_type_string();
 
     html! {
         <button
-            class={format!("button rounded {} {} {} space-x-2 p-0", size_class, style_class, disabled_style)}
-            onclick={button_onclick}
-            disabled={props.disabled}>
-            <div class="flex items-center justify-center space-x-2 ">
-           { props.icon_left.clone() } <span>
-            { &props.label }
-        </span>
-        { props.icon_right.clone() }
-        </div>
+            onclick={on_click}
+            type={butto_type}
+            class={classes!(style)}
+        >
+           {label.clone()}
         </button>
     }
 }

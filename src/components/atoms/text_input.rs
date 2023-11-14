@@ -1,111 +1,86 @@
-use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
 use yew::prelude::*;
-// use yew_icons::{Icon, IconId};
 
-#[derive(PartialEq)]
-pub enum TextInputSize {
-    Large,
-    Small,
-}
+use crate::render_svg;
 
-#[derive(PartialEq)]
-pub enum TextInputStyle {
-    State1,
-    State2,
-    State3,
-    State4,
-    Success,
-    Error,
-}
+// use crate::components::atoms::icon::Icon;
 
-#[derive(PartialEq)]
-pub enum TextInputColor {
-    Shade0,
-    Shade6,
-    Success,
-    Error,
-}
-
-#[derive(Properties, PartialEq)]
+#[derive(Properties, PartialEq, Clone)]
 pub struct TextInputProps {
-    pub label: String,
-    pub label_color: TextInputColor,
+    pub id: AttrValue,
+    pub value: AttrValue,
+    pub input_type: AttrValue,
+    pub input_handler: Callback<InputEvent>,
     #[prop_or_default]
-    pub placeholder: String,
+    pub left_icon: String,
     #[prop_or_default]
-    pub helper_text: String,
+    pub right_icon: String,
     #[prop_or_default]
-    pub helper_text_colder: TextInputColor,
-    pub on_change: Callback<String>,
-    pub style: TextInputStyle,
-    pub size: TextInputSize,
+    pub placeholder: AttrValue,
     #[prop_or_default]
-    pub icon_left: Html,
+    pub helper_text: AttrValue,
     #[prop_or_default]
-    pub icon_right: Html,
-}
-
-impl Default for TextInputColor {
-    fn default() -> Self {
-        TextInputColor::Shade0
-    }
+    pub show_password: AttrValue,
+    #[prop_or_default]
+    pub right_icon_click_handler: Option<Callback<MouseEvent>>,
 }
 
 impl TextInputProps {
-    pub fn style_string(&self) -> String {
-        match self.style {
-            TextInputStyle::State1 => "bg-grey-shade-14 border border-grey-shade-11 rounded outline-0 text-grey-shade-6 text-14-20-300".to_owned(),
-            TextInputStyle::State2 => todo!(),
-            TextInputStyle::State3 => todo!(),
-            TextInputStyle::State4 => todo!(),
-            TextInputStyle::Success =>  "bg-grey-shade-14 border border-success rounded  outline-0 text-grey-shade-6 text-14-20-300".to_owned(),
-            TextInputStyle::Error => todo!()
-        }
-    }
-
-    pub fn label_color_string(&self) -> String {
-        match self.label_color {
-            TextInputColor::Shade0 => "text-grey-shade-0".to_owned(),
-            TextInputColor::Shade6 => "text-grey-shade-6".to_owned(),
-            TextInputColor::Success => "text-success".to_owned(),
-            TextInputColor::Error => "text-error".to_owned(),
-        }
-    }
-
-    pub fn size_string(&self) -> String {
-        match self.size {
-            TextInputSize::Small => "w-44 h-7 text-12-16-400".to_owned(),
-            TextInputSize::Large => "w-72 h-10 text-16-21-400".to_owned(),
+    fn right_icon_click_handle(&self) -> Callback<MouseEvent> {
+        match &self.right_icon_click_handler {
+            Some(callback) => callback.clone(),
+            None => Callback::noop(),
         }
     }
 }
 
-#[function_component]
-pub fn TextInput(props: &TextInputProps) -> Html {
-    let style_class = props.style_string();
-    let size_class = props.size_string();
-    let label_color_class = props.label_color_string();
-
-    let handle_onchange = props.on_change.clone();
-
-    let onchange = Callback::from(move |event: Event| {
-        let value = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .value();
-        handle_onchange.emit(value);
-    });
+#[function_component(TextInput)]
+pub fn text_input(props: &TextInputProps) -> Html {
+    let id = &props.id;
+    let value = &props.value;
+    let placeholder = &props.placeholder;
+    let input_handler = &props.input_handler;
+    let input_type = &props.input_type;
+    let right_icon_click_handle = props.right_icon_click_handle();
 
     html! {
-        <div class="">
-            <label class={format!("{}", label_color_class)}>{&props.label}</label>
-            <div class={format!("pl-2 pr-2 p-2 {} {} flex items-center", style_class, size_class)}>
-                { props.icon_left.clone() }
-                <input class={"outline-0 px-2 flex-1"} type="text" name={props.label.clone()} onchange={onchange} placeholder={props.placeholder.clone()}/>
-                {props.icon_right.clone() }
-            </div>
-            <div class="text-gray-500 text-xs mt-2">{props.helper_text.clone()}</div>
-        </div>
+        <>
+            // <Icon
+            //     label="mdi:user"
+            //     color = "#ff0000"
+            //     width="18px"
+            //     height="18px"
+            // />
+            <span>{html! { render_svg!("mdi:user", color="#949494", width="18px")}} </span>
+
+            <input
+                id={id}
+                autocomplete="off"
+                name="password"
+                placeholder={placeholder}
+                value={value}
+                oninput={input_handler}
+                type={input_type}
+                class="px-3.5 py-3 w-72 h-10 bg-white placeholder:text-grey-shade-6 text-14 leading-20 font-300 font-sans outline-none pr-2 pl-2"
+            />
+            // <Icon
+            //     label="mdi:user"
+            //     color = "#ff0000"
+            //     width="18px"
+            //     height="18px"
+            //     on_click={right_icon_click_handle}
+            // />
+
+            { if props.right_icon.len() > 0  { html! {
+            <button
+                type="button"
+                class="cursor-pointer"
+                onclick={right_icon_click_handle}
+            >
+                {html! { render_svg!("mdi:eye", color="#949494" )}}
+            </button>
+            } } else {
+                html!("")
+            }}
+        </>
     }
 }

@@ -1,5 +1,15 @@
 use crate::{
-    apis::user::api_login, render_svg, routes::auth_routes::AuthRoute::ForgotPassword,
+    apis::user::api_login,
+    components::{
+        atoms::{
+            button::{Button, ButtonStyle, ButtonType},
+            label::{Label, LabelStyle},
+            text_input::TextInput,
+        },
+        organisms::{auth_layout::AuthLayout, form_layout::FormLayout},
+    },
+    render_svg,
+    routes::auth_routes::AuthRoute::ForgotPassword,
     stores::auth_store::AuthStore,
 };
 use gloo_console::log;
@@ -54,6 +64,7 @@ pub fn login() -> Html {
 
         Callback::from(move |event: SubmitEvent| {
             event.prevent_default();
+            log!("here clicked");
 
             if email.is_empty() {
                 return;
@@ -68,15 +79,16 @@ pub fn login() -> Html {
             let store_dispatch = store_dispatch.clone();
 
             spawn_local(async move {
-                let response = api_login(email, password).await;
+                // let response = api_login(email, password).await;
 
-                match response {
-                    Ok(response) => store_dispatch.reduce_mut(move |store| {
-                        store.is_authenticated = true;
-                        store.token = response.token.clone();
-                    }),
-                    Err(e) => log!(e.to_string()),
-                }
+                // match response {
+                // Ok(response) =>
+                store_dispatch.reduce_mut(move |store| {
+                    store.is_authenticated = true;
+                    store.token = "abc".to_owned() // response.token.clone();
+                                                   // }),
+                                                   // Err(e) => log!(e.to_string()),
+                })
             });
         })
     };
@@ -92,65 +104,56 @@ pub fn login() -> Html {
     let email = (*email_state).clone();
     let password = (*password_state).clone();
 
+    let icon = "mdi:key".to_owned();
+
     html! {
-        <div class="flex min-h-screen bg-banner-woman bg-cover" >
-            <div class="flex flex-col bg-white rounded-r px-4 justify-center w-screen md:px-16 md:w-auto">
-                <form class="space-y-7" onsubmit={on_submit.clone()}>
-                    <div class="space-y-3 max-w-xs">
-                        <h1 class="text-24 leading-32 font-sans font-600 text-grey-shade-1">{"Login"}</h1>
-                        <p class="text-14 leading-20 font-sans font-400 text-grey-shade-5">{"Enter your registered email ID and password"}</p>
-                    </div>
+                <AuthLayout>
+                    <FormLayout
+                        title="Login"
+                        description="Enter your registered email ID and password"
+                        submit_handler={on_submit.clone()}
+                    >
                     <div class="space-y-4">
                         <div class="flex flex-col space-y-1.5">
-                            <label
-                                for="email"
-                                class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
-                            >
-                                    {"Email ID"}
-                            </label>
-                             <div class="flex items-center rounded border border-grey-shade-11 justify-start px-2" >
-                                <span>{html! { render_svg!("mdi:user", color="#949494" , width="18px")}} </span>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    placeholder="Email ID"
-                                    oninput={on_email_input}
-                                    value={email.clone()}
-                                    class="px-3.5 py-3placeholder:text-grey-shade-6 text-14 leading-20
-                                    bg-white
-                                    h-10 
-                                    w-72
-                                    border-grey-shade-11
-                                    font-300 font-sans outline-none
-                                    pr-2 pl-2"
-                                />
+                            <Label
+                                label =  "Email"
+                                label_for = "email"
+                                label_style= {LabelStyle::Secondary}
+                            />
+                            <div class="flex items-center rounded border border-grey-shade-11 justify-start px-2" >
 
+                                <TextInput
+                                    id = "email"
+                                    value = {email.clone()}
+                                    input_type = "text"
+                                    input_handler = {on_email_input}
+                                    left_icon = "mid:user"
+                                    placeholder = "Email address"
+                                    helper_text = "enter a valid email address"
+                                />
                             </div>
                         </div>
                         <div class="flex flex-col space-y-1.5">
-                            <label
-                                for="password"
-                                class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
-                            >
-                                    {"Password"}
-                            </label>
+                            <Label
+                                label =  "Password"
+                                label_for = "password"
+                                label_style= {LabelStyle::Secondary}
+                            />
                             <div class="flex items-center rounded border justify-start border-grey-shade-11 px-2">
-                               <span>{html! { render_svg!("mdi:key", color="#949494", width="18px")}} </span>
-                                <input
+                               <span>{html! { render_svg!(icon, color="#949494", width="18px")}} </span>
+
+                               <TextInput
+
                                     id="password"
-                                    name="password"
-                                    placeholder="Password"
-                                    type={if *show_password { "password" } else { "text" }}
-                                    oninput={on_password_input}
                                     value={password.clone()}
-                                    class="px-3.5 py-3
-                                    w-72
-                                    h-10
-                                    bg-white
-                                    placeholder:text-grey-shade-6 text-14 leading-20
-                                    font-300 font-sans outline-none
-                                    pr-2 pl-2"
+                                    placeholder="Password"
+                                    helper_text="Enter an valid password"
+                                    input_handler={on_password_input.clone()}
+                                    input_type={if *show_password { "password" } else { "text" }}
+                                    left_icon="mdi:key"
+                                    right_icon_click_handler={toggle_password.clone()}
                                 />
+
                                 <button type="button" class="cursor-pointer" onclick={toggle_password}>{html! { render_svg!("mdi:eye", color="#949494" )}}</button>
                             </div>
                         </div>
@@ -160,22 +163,18 @@ pub fn login() -> Html {
                                 onclick={forgot_route_handler}
                                 class="cursor-pointer p-2 text-12 font-sans font-400 text-primary leading-12"
                             >
-                            {"Forgot password?"}
+                                {"Forgot password?"}
                             </button>
                         </div>
-                    </div>
-                    <div>
-                        <button
-                            onsubmit={on_submit.clone()}
-                            type="submit"
-                            class="cursor-pointer p-2 text-16 font-sans     font-400 text-grey-shade-14 leading-20 bg-primary w-full rounded"
-                        >
-                            {"Login"}
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
+                        </div>
+                        <div>
+                            <Button
+                                label = "Login"
+                                button_type = {ButtonType::Submit}
+                                button_style = {ButtonStyle::PrimaryFill}
+                            />
+                        </div>
+                </FormLayout>
+            </AuthLayout>
     }
 }

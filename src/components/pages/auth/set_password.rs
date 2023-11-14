@@ -1,4 +1,20 @@
-use crate::{apis::user::api_reset_password, render_svg, routes::auth_routes::AuthRoute};
+use crate::{
+    apis::user::api_reset_password,
+    components::{
+        atoms::{
+            button::{Button, ButtonStyle, ButtonType},
+            label::{Label, LabelStyle},
+            text_input::TextInput,
+        },
+        organisms::{auth_layout::AuthLayout, form_layout::FormLayout},
+    },
+    render_svg,
+    routes::auth_routes::AuthRoute,
+    utils::string_validation::{
+        validate_contains_number, validate_contains_special, validate_contains_uppercase,
+        validate_length,
+    },
+};
 use gloo_console::log;
 use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
 use yew::{platform::spawn_local, prelude::*};
@@ -95,7 +111,9 @@ pub fn set_password(props: &Props) -> Html {
         let password_reset_token = props.token.clone();
         let history = use_navigator().unwrap();
 
-        Callback::from(move |_event: MouseEvent| {
+        Callback::from(move |event: SubmitEvent| {
+            event.prevent_default();
+
             if contains_number
                 && contains_special
                 && contains_uppercase
@@ -131,65 +149,52 @@ pub fn set_password(props: &Props) -> Html {
     let password_match = (*passwords_match).clone();
 
     html! {
-        <div class="flex min-h-screen bg-banner-woman bg-cover" >
-            <div class="flex flex-col bg-white rounded-r px-4 justify-center w-screen md:px-16 md:w-auto">
-                <form class="space-y-7">
-                    <div class="space-y-3 max-w-xs">
-                        <h1 class="text-24 leading-32 font-sans font-600 text-grey-shade-1">{"Set password "}</h1>
-                        <p class="text-14 leading-20 font-sans font-400 text-grey-shade-5">{"Set new password"}</p>
-                    </div>
+        <AuthLayout>
+                    <FormLayout
+                        title="Set password"
+                        description="Set new password"
+                        submit_handler={onsubmit_handle.clone()}
+                    >
                     <div class="space-y-4">
                         <div class="flex flex-col space-y-1.5">
-                            <label
-                                for="newpassword"
-                                class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
-                            >
-                                    {"New password"}
-                            </label>
+                            <Label
+                                label =  "New password"
+                                label_for = "newpassword"
+                                label_style= {LabelStyle::Secondary}
+                            />
                             <div class="flex items-center rounded border justify-start border-grey-shade-11 px-2">
                                <span>{html! { render_svg!("mdi:key", color="#949494", width="18px")}} </span>
-                                <input
+                                <TextInput
                                     id="newpassword"
-                                    name="newpassword"
-                                    placeholder="New password"
-                                    oninput={on_password_input}
                                     value={password.clone()}
-                                    type={if *show_password { "password" } else { "text" }}
-                                    class="px-3.5 py-3
-                                    w-72
-                                    h-10
-                                    bg-white
-                                    placeholder:text-grey-shade-6 text-14 leading-20
-                                    font-300 font-sans outline-none
-                                    pr-2 pl-2"
+                                    placeholder="New password"
+                                    helper_text="Enter an valid password"
+                                    input_handler={on_password_input.clone()}
+                                    input_type={if *show_password { "password" } else { "text" }}
+                                    left_icon="mdi:key"
+                                    right_icon_click_handler={toggle_password.clone()}
                                 />
                                 <button type="button" class="cursor-pointer" onclick={toggle_password}>{html! { render_svg!("mdi:eye", color="#949494" )}}</button>
                             </div>
                             </div>
                             <div class="flex flex-col space-y-1.5">
-                            <label
-                                for="confirmpassword"
-                                class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
-                            >
-                                    {"Confirm password"}
-                            </label>
+                            <Label
+                            label =  "Confirm password"
+                            label_for = "confirmpassword"
+                            label_style= {LabelStyle::Secondary}
+                        />
                             <div class="flex items-center rounded border justify-start border-grey-shade-11 px-2">
                                <span>{html! { render_svg!("mdi:key", color="#949494", width="18px")}} </span>
-                                <input
+
+                                <TextInput
                                     id="confirmpassword"
-                                    name="confirmpassword"
-                                    placeholder="Confirm password"
-                                    type="password"
-                                    oninput={on_confirm_password_input}
                                     value={confirm_password.clone()}
-                                    class="px-3.5 py-3
-                                    w-72
-                                    h-10
-                                    bg-white
-                                    placeholder:text-grey-shade-6 text-14 leading-20
-                                    font-300 font-sans outline-none
-                                    pr-2 pl-2"
+                                    placeholder="Confirm password"
+                                    helper_text="Enter an valid password"
+                                    input_handler={on_confirm_password_input.clone()}
+                                    input_type="password"
                                 />
+
                             </div>
                             { if !password_match {
                                 html! { <p class="text-primary text-11 font-400">{ "Passwords do not match." }</p> }
@@ -243,33 +248,13 @@ pub fn set_password(props: &Props) -> Html {
                         </div>
 
                     <div>
-                        <button
-                            type="button"
-                            onclick={onsubmit_handle}
-                            class="cursor-pointer p-2 text-16 font-sans     font-400 text-grey-shade-14 leading-20 bg-primary w-full rounded"
-                        >
-                            {"Reset password"}
-                        </button>
+                        <Button
+                            label = "Reset password"
+                            button_type = {ButtonType::Submit}
+                            button_style = {ButtonStyle::PrimaryFill}
+                        />
                     </div>
-
-                </form>
-            </div>
-        </div>
+               </FormLayout>
+            </AuthLayout>
     }
-}
-
-fn validate_contains_number(password: &str) -> bool {
-    password.chars().any(|c| c.is_ascii_digit())
-}
-
-fn validate_contains_uppercase(password: &str) -> bool {
-    password.chars().any(|c| c.is_ascii_uppercase())
-}
-
-fn validate_contains_special(password: &str) -> bool {
-    password.chars().any(|c| !c.is_alphanumeric())
-}
-
-fn validate_length(password: &str, min_length: usize) -> bool {
-    password.len() >= min_length
 }

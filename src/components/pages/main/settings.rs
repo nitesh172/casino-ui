@@ -1,11 +1,37 @@
-use crate::{render_svg, stores::auth_store::AuthStore};
-use yew::prelude::*;
+use crate::{
+    apis::user::{api_me, CreateUser, CurrentUser},
+    render_svg,
+    stores::auth_store::AuthStore,
+};
+use gloo_console::log;
+use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
+use yew::{platform::spawn_local, prelude::*};
 use yewdux::prelude::*;
 
 #[function_component(Settings)]
 pub fn settings() -> Html {
     let is_open = use_state(|| true);
     let (_, auth_dispatch) = use_store::<AuthStore>();
+
+    let user = use_state(|| CurrentUser::default());
+
+    let on_username_input = {
+        let user_state = user.clone();
+        Callback::from(move |event: InputEvent| {
+            let value = event
+                .target()
+                .unwrap()
+                .unchecked_into::<HtmlInputElement>()
+                .value();
+            log!(value.clone());
+
+            let mut user = (*user_state).clone();
+
+            user.name = Some(value);
+
+            user_state.set(user);
+        })
+    };
 
     let edit_modal_handle = {
         let is_open = is_open.clone();
@@ -14,6 +40,49 @@ pub fn settings() -> Html {
             is_open.set(!*is_open);
         })
     };
+
+    let cloned_user = user.clone();
+    let api_me_fn = move || {
+        let user = cloned_user.clone(); // Clone for the closure
+        spawn_local(async move {
+            let response = api_me().await;
+
+            match response {
+                Ok(response) => user.set(response),
+                Err(e) => log!("Error: {}", e.to_string()),
+            }
+        });
+    };
+
+    let update_user = {
+        let user_cloned = (*user).clone();
+
+        let updated_user = CreateUser {
+            name: user_cloned.name.clone().unwrap_or_else(|| String::new()),
+            email_address: user_cloned.email_address.clone(),
+            roles: user_cloned.roles.clone(),
+            status: user_cloned.status.clone(),
+        };
+
+        Callback::from(move |event: SubmitEvent| {
+            let user = (updated_user).clone();
+            spawn_local(async move {
+                // let response = api_update_user(user).await;
+
+                // match response {
+                //     Ok(response) => log!(""),
+                //     // Ok(response) => user.clone().set(response),
+                //     Err(e) => log!("Error: {}", e.to_string()),
+                // }
+            });
+        })
+    };
+
+    use_effect_with((), move |_| {
+        log!("Ui rendered");
+        api_me_fn(); // Call the async function
+        || {}
+    });
 
     let logout_handle = auth_dispatch
         .reduce_mut_callback_with(|store, _event: MouseEvent| store.reset_to_default());
@@ -44,7 +113,7 @@ pub fn settings() -> Html {
                     </div>
                     <div class="flex-1 flex justify-between items-center">
                         <div>
-                            <h3>{"Beckham Andy"}</h3>
+                            <h3>{user.name.clone()}</h3>
                             <p>{"username"}</p>
                         </div>
                         <div>
@@ -66,7 +135,7 @@ pub fn settings() -> Html {
                         <div class="space-y-6 pt-3">
                             <div class="space-y-4">
                                 <div>
-                                    <p class="text-12 font-400 leading-20 text-shade-2">{"JaneCooper@gmail.com"}</p>
+                                    <p class="text-12 font-400 leading-20 text-shade-2">{user.email_address.clone()}</p>
                                     <p class="text-11 font-400 leading-20 text-grey-shade-5">{"Email ID"}</p>
                                 </div>
                                     <button class="bg-grey-shade-0 flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
@@ -169,7 +238,7 @@ pub fn settings() -> Html {
                 </div>
             </div>
         </div>
-        { if *is_open {html! {<EditModal edit_modal_handle={edit_modal_handle.clone()}/>}  } else { html! ("") } }
+        { if *is_open {html! {<EditModal edit_modal_handle={edit_modal_handle.clone()} on_username_input={on_username_input} user={(*user).clone()} update_user={update_user.clone()} />}  } else { html! ("") } }
         </>
     )
 }
@@ -177,10 +246,31 @@ pub fn settings() -> Html {
 #[derive(Properties, PartialEq)]
 struct EditModalProps {
     edit_modal_handle: Callback<MouseEvent>,
+    on_username_input: Callback<InputEvent>,
+    update_user: Callback<SubmitEvent>,
+    user: CurrentUser,
 }
 
 #[function_component(EditModal)]
 fn edit_modal(props: &EditModalProps) -> Html {
+    let file_handle = {
+        Callback::from(|event: Event| {
+            let files = event
+                .target()
+                .and_then(|target| target.dyn_into::<web_sys::HtmlInputElement>().ok())
+                .and_then(|input| input.files());
+
+            if let Some(files) = files {
+                if let Some(file) = files.get(0) {
+                    log!("Selected file name: {}", file);
+                } else {
+                    log!("No file selected");
+                    // Handle the case where no file is selected
+                }
+            }
+        })
+    };
+
     html! {
         <div class="z-10 fixed inset-0 bg-grey-shade-0/70 w-screen flex h-screen items-center justify-center">
             <div class=" bg-white p-7 rounded-sm space-y-7">
@@ -192,9 +282,11 @@ fn edit_modal(props: &EditModalProps) -> Html {
                 </div>
                 <div class="flex space-x-4 bg-grey-shade-13 items-center justify-start p-6 rounded-sm">
                     <img src="img/circle_profile.png" class="w-22" />
-                    <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400 leading-16">
-                        {"Replace image"}
-                    </button>
+                    // <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400 leading-16">
+                    //     {"Replace image"}
+                    // </button>
+                    <input type="file" placeholder="Replace Image" onchange={file_handle} />
+
                     <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400 leading-16">
                         {"Remove image"}
                     </button>
@@ -212,6 +304,8 @@ fn edit_modal(props: &EditModalProps) -> Html {
                             id="username"
                             name="username"
                             placeholder="Username"
+                            oninput={props.on_username_input.clone()}
+                            value={props.user.name.clone()}
                             class="px-3.5 py-3placeholder:text-grey-shade-6 text-14 leading-20
                             bg-white
                             h-10 
@@ -223,7 +317,7 @@ fn edit_modal(props: &EditModalProps) -> Html {
                     </div>
                 </div>
                 <div class="flex space-x-4  items-center justify-start p-0 rounded-sm">
-                    <button class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
+                    <button type="submit" onsubmit={props.update_user.clone()} class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
                         {"Save"}
                     </button>
                     <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400" onclick={props.edit_modal_handle.clone()}>

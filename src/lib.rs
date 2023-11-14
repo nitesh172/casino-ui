@@ -17,24 +17,24 @@ use yewdux::prelude::*;
 
 #[function_component]
 pub fn App() -> Html {
-    let is_auth = use_state(|| true);
+    let is_auth = use_state(|| false);
     let (store, _) = use_store::<AuthStore>();
 
-    // {
-    //     let is_auth = is_auth.clone();
-    //     let is_authenticated = store.is_authenticated.clone();
+    {
+        let is_auth = is_auth.clone();
+        let is_authenticated = store.is_authenticated.clone();
 
-    //     use_effect_with(is_authenticated, move |_| {
-    //         log!("Ui rendered");
-    //         if is_authenticated {
-    //             is_auth.set(true);
-    //         } else {
-    //             is_auth.set(false);
-    //         }
+        use_effect_with(is_authenticated, move |_| {
+            log!("Ui rendered");
+            if is_authenticated {
+                is_auth.set(true);
+            } else {
+                is_auth.set(false);
+            }
 
-    //         || {}
-    //     });
-    // }
+            || {}
+        });
+    }
 
     let is_auth_state = (*is_auth).clone();
     html! {
