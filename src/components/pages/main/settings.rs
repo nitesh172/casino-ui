@@ -89,7 +89,7 @@ pub fn settings() -> Html {
 
     html!(
         <>
-        <div class="bg-gradient-to-b from-grey-shade-13 from-20% to-grey-shade-14 to-10% py-8 ">
+        <div class="bg-gradient-to-b from-grey-shade-13 from-20% to-grey-shade-14 to-10% px-2 md:px-0 py-8 ">
             <div class="container mx-auto space-y-6">
                 // Header
                 <div class="flex items-center justify-between">
@@ -128,9 +128,9 @@ pub fn settings() -> Html {
                 </div>
 
                 // Details
-                <div class="flex flex-col md:flex-row space-x-4">
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
                     // Login details
-                    <div class="bg-grey-shade-12 border border-grey-shade-11 p-5 rounded w-1/4">
+                    <div class="bg-grey-shade-12 border border-grey-shade-11 p-5 rounded w-full md:w-1/4">
                         <p class="text-16 font-700 leading-20 text-grey-shade-0">{"Login details"}</p>
                         <div class="space-y-6 pt-3">
                             <div class="space-y-4">
@@ -272,26 +272,26 @@ fn edit_modal(props: &EditModalProps) -> Html {
     };
 
     html! {
-        <div class="z-10 fixed inset-0 bg-grey-shade-0/70 w-screen flex h-screen items-center justify-center">
-            <div class=" bg-white p-7 rounded-sm space-y-7">
-                <div class="flex items-center justify-between">
+        <div class="z-10 fixed inset-0 bg-grey-shade-0/70 w-screen flex h-screen items-center justify-center px-4 md:px-0">
+            <div class=" bg-white px-2 py-4 md:p-7 rounded-sm space-y-7">
+                <div class="flex items-center justify-between space-x-4 md:space-x-0">
                     <p>{"Edit personal information"}</p>
                     <span class="cursor-pointer" onclick={props.edit_modal_handle.clone()}>
                         {html! {render_svg!("mdi:multiply",color="#232323",width="25px")}}
                     </span>
                 </div>
-                <div class="flex space-x-4 bg-grey-shade-13 items-center justify-start p-6 rounded-sm">
-                    <img src="img/circle_profile.png" class="w-22" />
-                    // <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400 leading-16">
-                    //     {"Replace image"}
-                    // </button>
-                    <input type="file" placeholder="Replace Image" onchange={file_handle} />
+                <div class="flex space-x-4 bg-grey-shade-13 items-center justify-start p-6 rounded-sm flex-col md:flex-row space-y-2 md:space-y-0">
+                    <img src="img/circle_profile.png" class="w-14 md:w-22" />
+                    <label for="fileInput" class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400 leading-16 cursor-pointer">
+                        {"Replace Image"}
+                    </label>
+                  <input type="file" id="fileInput" class="hidden" />
 
                     <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400 leading-16">
                         {"Remove image"}
                     </button>
                 </div>
-                <div class="flex flex-col space-y-1.5 md:w-[600px]">
+                <div class="flex flex-col space-y-1.5 w-full md:w-[600px]">
                     <label
                         for="username"
                         class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
@@ -308,8 +308,9 @@ fn edit_modal(props: &EditModalProps) -> Html {
                             value={props.user.name.clone()}
                             class="px-3.5 py-3placeholder:text-grey-shade-6 text-14 leading-20
                             bg-white
-                            h-10 
-                            w-72
+                            h-10
+                            w-full  
+                            md:w-72
                             border-grey-shade-11
                             font-300 font-sans outline-none
                             pr-2 pl-2"

@@ -104,8 +104,6 @@ pub fn login() -> Html {
     let email = (*email_state).clone();
     let password = (*password_state).clone();
 
-    let icon = "mdi:key".to_owned();
-
     html! {
                 <AuthLayout>
                     <FormLayout
@@ -140,10 +138,9 @@ pub fn login() -> Html {
                                 label_style= {LabelStyle::Secondary}
                             />
                             <div class="flex items-center rounded border justify-start border-grey-shade-11 px-2">
-                               <span>{html! { render_svg!(icon, color="#949494", width="18px")}} </span>
+                               <span>{html! { render_svg!("mdi:key", color="#949494", width="18px")}} </span>
 
                                <TextInput
-
                                     id="password"
                                     value={password.clone()}
                                     placeholder="Password"

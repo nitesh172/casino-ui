@@ -1,15 +1,9 @@
 use yew::prelude::*;
 
-use crate::{
-    components::atoms::{
-        label::{Label, LabelStyle},
-        text_input::TextInput,
-    },
-    render_svg,
-};
+use crate::render_svg;
 
-#[function_component(Games)]
-pub fn games() -> Html {
+#[function_component(Notifications)]
+pub fn notifications() -> Html {
     let is_open = use_state(|| false);
 
     let modal_handle = {
@@ -25,7 +19,7 @@ pub fn games() -> Html {
             <div class="container mx-auto md:w-auto space-y-4 " >
                 <div class="flex justify-between items-center">
                     <div class="flex space-x-4 items-center">
-                        <h1>{"Game"}</h1>
+                        <h1>{"Notifications"}</h1>
                             <div class="flex items-center rounded border justify-start border-grey-shade-11 px-2 w-40">
                                 <span>{html! { render_svg!("mynaui:search",  color="#000000", width="18px")}} </span>
                                 <input
@@ -33,6 +27,9 @@ pub fn games() -> Html {
                                     autocomplete="off"
                                     name="search"
                                     placeholder={"search"}
+                                    // value={
+                                    // oninput={input_handler}
+                                    // type={input_type}
                                     class="px-2.5 py-2 h-7 bg-white placeholder:text-grey-shade-6 text-14  leading-20 font-300 font-sans outline-none pr-2 pl-2 w-full"
                                 />
                         </div>
@@ -55,7 +52,7 @@ pub fn games() -> Html {
                             </span>
                             {"Create"}
                         </button>
-                     </div>
+                    </div>
                 </div>
                 <div class="flex justify-between items-center text-grey-shade-5">
                     <div class="flex space-x-4 items-center">
@@ -93,50 +90,50 @@ pub fn games() -> Html {
             <table class="w-full table-auto">
                 <thead class="bg-grey-shade-13">
                     <tr class="">
-                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Name"}</th>
-                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Category"}</th>
-                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Provide"}</th>
+                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Notification Message"}</th>
+                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Status"}</th>
+                        <th class="py-3 pl-5 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Offer available from"}</th>
+                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Offer available until"}</th>
+                        <th class="py-3 text-left text-14 font-medium text-grey-shade-5 pr-5 tracking-wider">{"Created on"}</th>
                         <th class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{"Action"}</th>
                     </tr>
                 </thead>
-                <tbody class="overflow-y-auto">
+                <tbody>
                     <tr>
-                        <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Blackjack"}</td>
+                        <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Weekends just got better! Play our featured slots and compete for a share of the $10,000 jackpot."}</td>
                         <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">
                             <span class="bg-grey-shade-11 rounded-full py-1 px-2">
-                                {"Slot Machine"}
+                                {"Active"}
                             </span>
                         </td>
-                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">{"Evolution"}</td>
-                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                            <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                            <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                    <a href="#" class="">
-                                    { "Remove" }
-                                    </a>
-                                </li>
-                            </ul>
-                        </td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pl-5">{"12 Sept 2023 | 12:00"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"12 Sept 2023 | 12:00"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pr-5">{"12 Sept 2023"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider"> {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</td>
                     </tr>
                     <tr>
-                        <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Blackjack"}</td>
+                        <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Weekends just got better! Play our featured slots and compete for a share of the $10,000 jackpot."}</td>
                         <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">
                             <span class="bg-grey-shade-11 rounded-full py-1 px-2">
-                                {"Table Games"}
+                                {"Active"}
                             </span>
                         </td>
-                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">{"Evolution"}</td>
-                        <td class="py-3 text-right text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                            <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                            <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                    <a href="#" class="">
-                                    { "Remove" }
-                                    </a>
-                                </li>
-                            </ul>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pl-5">{"12 Sept 2023 | 12:00"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"12 Sept 2023 | 12:00"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pr-5">{"12 Sept 2023"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider"> {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Weekends just got better! Play our featured slots and compete for a share of the $10,000 jackpot."}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">
+                            <span class="bg-grey-shade-11 rounded-full py-1 px-2">
+                                {"Active"}
+                            </span>
                         </td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pl-5">{"12 Sept 2023 | 12:00"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"12 Sept 2023 | 12:00"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pr-5">{"12 Sept 2023"}</td>
+                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider"> {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -158,7 +155,7 @@ fn edit_modal(props: &ModalProps) -> Html {
         <div class="z-10 fixed inset-0 bg-grey-shade-0/70 w-screen flex h-screen items-center justify-center">
             <div class=" bg-white p-7 rounded-sm space-y-7">
                 <div class="flex items-center justify-between">
-                    <p>{"Add game"}</p>
+                    <p>{"Create notification"}</p>
                     <span class="cursor-pointer" onclick={props.modal_handle.clone()}>
                         {html! {render_svg!("mdi:multiply",color="#232323",width="25px")}}
                     </span>
@@ -166,63 +163,64 @@ fn edit_modal(props: &ModalProps) -> Html {
 
                 <div class="flex flex-col space-y-1.5 md:w-[600px]">
                     <label
-                        for="game"
+                        for="message"
                         class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
                     >
-                            {"Platform name"}
+                            {"Notification message here"}
                     </label>
-                    <div class="relative inline-flex w-full ">
-                        <select class="appearance-none border border-gray-300 rounded px-3 py-2 focus:outline-none w-full ">
-                            <option>{"Evolution"}</option>
-                            <option>{"Ezugi"}</option>
-                            <option>{"Qtech"}</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 11.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
+                    <div class="flex items-center rounded border border-grey-shade-11 justify-start p-2" >
+                        <textarea
+                            id="message"
+                            name="message"
+                            placeholder="Message"
+                            class="px-3.5 py-3placeholder:text-grey-shade-6 text-14 leading-20
+                            w-full  resize-none
+                            bg-white
+                            border-grey-shade-11
+                            font-300 font-sans outline-none"
+                        />
+                    </div>
+                </div>
+                <div class="flex flex-col space-y-4">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="border-2 border-primary focus:ring-grey-shade-5 w-[20px] h-[20px] toggle-checkbox:checked " />
+                        <span class="text-gray-700">{"Offer expiry date"}</span>
+                    </label>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <label for="datetime" class="block text-sm font-medium text-gray-700">{"Offer available from"}</label>
+                            <input type="datetime-local" id="datetime" placeholder="Select a date and time" class="mt-1 p-2 border rounded-md w-full focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200 my-custom-tailwind-class" />
+
+                        </div>
+                        <div>
+                            <label for="datetime" class="block text-sm font-medium text-gray-700">{"Offer available until"}</label>
+                            <input type="datetime-local" id="datetime" name="datetime" class="mt-1 p-2 border rounded-md w-full" />
                         </div>
                     </div>
                 </div>
-                <div class="flex flex-col space-y-1.5 md:w-[600px]">
-                    <label
-                        for="category"
-                        class="text-11 leading-25 font-sans font-400 text-grey-shade-0"
-                    >
-                            {"Category"}
+                <div class="space-y-4">
+                    <p>{"Notify this through"}</p>
+                    <div class="flex flex-col space-y-4">
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" class="" />
+                        <span class="text-gray-700">{"Offer expiry date"}</span>
                     </label>
-                    <div class="relative inline-flex w-full ">
-                        <select  id="category" class="appearance-none border border-gray-300 rounded px-3 py-2 focus:outline-none w-full ">
-                            <option>{"Table games"}</option>
-                            <option>{"Slot machines"}</option>
-                            <option>{"Video poker"}</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 11.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
+                    <label class="flex items-center space-x-2 toggle-label ">
+                        <input type="checkbox" class="" />
+                        <span class="text-gray-700">{"Offer expiry date"}</span>
+                    </label>
+                    <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="" />
+                    <span>{"Offer expiry date"}</span>
+                </label>
                     </div>
-                </div>
-                <div class="md:w-[600px]">
-                <ul class="flex flex-wrap w-full space-y-2 space-x-8 items-baseline justify-start">
-                    <li class="bg-grey-shade-2 text-grey-shade-14 text-12 px-3 py-2 rounded-lg">
-                        {"Blackjack"}
-                    </li>
-                    <li class="bg-grey-shade-2 text-grey-shade-14 text-12 px-3 py-2 rounded-lg">{"Roulette"}</li>
-                    <li class="bg-grey-shade-2 text-grey-shade-14 text-12 px-3 py-2 rounded-lg">{"Poker"}</li>
-                    <li class="bg-grey-shade-13 text-grey-shade-1 text-12 px-3 py-2 rounded-lg">{"Baccarat"}</li>
-                    <li class="bg-grey-shade-13 text-grey-shade-1 text-12 px-3 py-2 rounded-lg">{"Craps"}</li>
-                    <li class="bg-grey-shade-13 text-grey-shade-1 text-12 px-3 py-2 rounded-lg">{"Pai Gow Poker"}</li>
-                    <li class="bg-grey-shade-13 text-grey-shade-1 text-12 px-3 py-2 rounded-lg">{"Sci Bo"}</li>
-                </ul>
                 </div>
                 <div class="flex space-x-4  items-center justify-start p-0 rounded-sm">
                     <button type="submit"  class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
-                        {"Add"}
+                        {"Save"}
                     </button>
                     <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400" onclick={props.modal_handle.clone()}>
-                        {"Cancel"}
+                        {"Close"}
                     </button>
                 </div>
             </div>

@@ -14,61 +14,48 @@
   }
 }
 
-/* 
-.text-11-15-300 {
-    font-family: 'Nunito Sans';
-    font-size: 11px;
-    line-height: 15px;
-    font-weight: 300;
-  }
-  
-  .text-14-20-300 {
-    font-family: 'Nunito Sans';
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 300;
-  }
+/* Hamburger Menu */
+.hamburger {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  transition: all 0.25s;
+  position: relative;
+}
 
-  .text-12-16-400 {
-    font-family: 'Nunito Sans';
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 400;
-  } 
-  
-  .text-14-20-400 {
-    font-family: 'Nunito Sans';
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 400;
-  }
+.hamburger-top,
+.hamburger-middle,
+.hamburger-bottom {
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  top: 0;
+  left: 0;
+  background: #fff;
+  transform: rotate(0);
+  transition: all 0.5s;
+}
 
-  .text-14-20-600 {
-    font-family: 'Nunito Sans';
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 600;
-  }
-  
-  .text-16-21-400 {
-    font-family: 'Nunito Sans';
-    font-size: 16px;
-    line-height: 21px;
-    font-weight: 400;
-  }
+.hamburger-middle {
+  transform: translateY(7px);
+}
 
-  .text-24-32-600 {
-    font-family: 'Nunito Sans';
-    font-size: 24px;
-    line-height: 32px;
-    font-weight: 600;
-  }
+.hamburger-bottom {
+  transform: translateY(14px);
+}
 
-  .text-24-32-700 {
-    font-family: 'Nunito Sans';
-    font-size: 24px;
-    line-height: 32px;
-    font-weight: 700;
-  }
-  
-  */
+.open {
+  transform: rotate(90deg);
+}
+
+.open .hamburger-top {
+  transform: rotate(45deg) translateY(6px) translateX(6px);
+}
+
+.open .hamburger-middle {
+  display: none;
+}
+
+.open .hamburger-bottom {
+  transform: rotate(-45deg) translateY(6px) translateX(-6px);
+}
