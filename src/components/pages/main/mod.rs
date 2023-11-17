@@ -1,3 +1,4 @@
+pub mod customer_profile;
 pub mod customers;
 pub mod games;
 pub mod integrations;

@@ -59,3 +59,44 @@
 .open .hamburger-bottom {
   transform: rotate(-45deg) translateY(6px) translateX(-6px);
 }
+
+toggle-switch {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-switch label {
+  margin-right: 8px; /* Adjust spacing between label and switch */
+}
+
+.toggle-switch input {
+  position: relative;
+  display: inline-block;
+  width: 40px; /* Adjust the width of the switch */
+  height: 20px; /* Adjust the height of the switch */
+  appearance: none;
+  background-color: #ccc;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.toggle-switch input:checked {
+  @apply bg-primary; /* Adjust the background color when the switch is checked */
+}
+
+.toggle-switch input::before {
+  content: '';
+  position: absolute;
+  width: 18px; /* Adjust the width of the switch handle */
+  height: 18px; /* Adjust the height of the switch handle */
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch input:checked::before {
+  transform: translateX(
+    20px
+  ); /* Adjust the distance the switch handle moves when checked */
+}
