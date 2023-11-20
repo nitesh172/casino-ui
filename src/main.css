@@ -100,3 +100,46 @@ toggle-switch {
     20px
   ); /* Adjust the distance the switch handle moves when checked */
 }
+
+.chart .axis.left .title {
+  transform: rotate(270deg);
+}
+
+.chart .axis.right .title {
+  transform: rotate(90deg);
+}
+
+.chart {
+  max-width: 1332px;
+}
+
+.chart .axis .line {
+  stroke: grey;
+}
+
+.chart .axis .tick {
+  stroke: grey;
+}
+
+.chart .some-x-axis .text {
+  text-anchor: start;
+  transform: rotate(45deg);
+}
+
+.chart .some-x-axis .title {
+  transform: translatey(2em);
+}
+
+.chart .series.some-series {
+  stroke: green;
+  stroke-width: 2px;
+}
+
+.chart .series.some-series text {
+  stroke: none;
+  stroke-width: 1px;
+}
+
+.chart .series.bar-chart {
+  stroke-width: 30px;
+}

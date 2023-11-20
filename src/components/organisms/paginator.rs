@@ -58,14 +58,14 @@ pub fn paginator(props: &PaginatorProps) -> Html {
     html! {
         <div class = "flex flex-col md:flex-row justify-start md:justify-between items-center">
             <div class = "flex flex-col md:flex-row space-x-4 items-center justify-start md:justify-between">
-                <p>{main_text}</p>
+                <p class="text-grey-shade-5 font-400 text-14">{main_text}</p>
                 <Pagination
                     page_numbers={page_numbers}
                     current_page={1}
                 />
             </div>
             <div class = "flex space-x-4 items-center justify-start md:justify-between">
-                <p>{"Items per page"}</p>
+                <p class="text-grey-shade-5 font-400 text-14">{"Items per page"}</p>
                 <select class="focus:outline-none p-1 border-grey-shade-6 rounded">
                     <option selected=true>{"10"}</option>
                     <option>{"20"}</option>
