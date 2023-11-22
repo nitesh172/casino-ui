@@ -1,8 +1,8 @@
-use web_sys::{
-    wasm_bindgen::{JsCast, JsValue},
-    window, Document, HtmlElement,
-};
-use yew::{prelude::*, virtual_dom::VNode};
+use gloo_console::log;
+use web_sys::window;
+use yew::prelude::*;
+
+use crate::binding;
 
 use crate::render_svg;
 
@@ -100,132 +100,61 @@ fn info_card(props: &InfoCardProps) -> Html {
     }
 }
 
-// const WIDTH: f32 = 533.0;
-// const HEIGHT: f32 = 300.0;
-// const MARGIN: f32 = 50.0;
-// const TICK_LENGTH: f32 = 10.0;
-
 #[function_component(TotalUsersCard)]
 fn total_users_card() -> Html {
-    // let end_date = Utc::now();
-    // let start_date = end_date.sub(Duration::days(4));
-    // let timespan = start_date..end_date;
+    use_effect(move || {
+        let document = window().unwrap().document().unwrap();
 
-    // let circle_text_labeller = Rc::from(series::circle_text_label("Label")) as Rc<dyn Labeller>;
+        let container = document.get_element_by_id("total-users-chart").unwrap();
 
-    // let data_set = Rc::new(vec![
-    //     (start_date.timestamp_millis(), 1.0, None),
-    //     (
-    //         start_date.add(Duration::days(1)).timestamp_millis(),
-    //         4.0,
-    //         None,
-    //     ),
-    //     (
-    //         start_date.add(Duration::days(2)).timestamp_millis(),
-    //         3.0,
-    //         None,
-    //     ),
-    //     (
-    //         start_date.add(Duration::days(3)).timestamp_millis(),
-    //         2.0,
-    //         None,
-    //     ),
-    //     (
-    //         start_date.add(Duration::days(4)).timestamp_millis(),
-    //         5.0,
-    //         Some(circle_text_labeller),
-    //     ),
-    // ]);
+        let container_width = container.client_width() as f64;
+        let container_height = container.client_height() as f64;
 
-    // let h_scale = Rc::new(TimeScale::new(timespan, Duration::days(1))) as Rc<dyn Scale<Scalar = _>>;
-    // let v_scale = Rc::new(LinearScale::new(0.0..5.0, 1.0)) as Rc<dyn Scale<Scalar = _>>;
+        log!(container_height);
+        log!(container_width);
 
-    // let tooltip = Rc::from(series::y_tooltip()) as Rc<dyn Tooltipper<_, _>>;
-    let js_code = JsValue::from_str(include_str!("../../../js/chart.js"));
-    let js_string = js_code.as_string().unwrap();
-
-    // Create a new div element
-    let div = window()
-        .unwrap()
-        .document()
-        .expect("Window not found")
-        .create_element("div")
-        .unwrap();
-    div.set_inner_html(&js_string);
-
-    // Convert the div element to HtmlElement
-    let html_code: HtmlElement = div.unchecked_into();
+        binding::totalUsersChart(container_width, container_height);
+        || {}
+    });
 
     html! {
-        <>
-        <div id="chart-container">
-            {VNode::VRef(html_code.into())}
-            // <script>{ html_code }</script>
+        <div class=" rounded-xl border border-grey-shade-11 p-4 space-y-2">
+            <div class="flex items-center justify-between space-x-5">
+            <div class="flex justify-between items-center">
+                <h1 class="text-16 font-400 leading-20 text-grey-shade-1">{"Total user"}</h1>
+            </div>
+            <div class="flex items-center justify-end space-x-2">
+                <div class="flex items-center rounded border border-grey-shade-11 justify-start px-3 py-2" >
+                    <label for="datepicker" class="text-12 text-grey-shade-3 font-300">{"From:"}</label>
+                    <input id="datepicker" type="date" class=" outline-none text-12 text-grey-shade-3 font-300" />
+                </div>
+                <div class="flex items-center rounded border border-grey-shade-11 justify-start px-3 py-2" >
+                    <label for="datepicker" class="text-12 text-grey-shade-3 font-300">{"To:"}</label>
+                    <input id="datepicker" type="date" class=" outline-none text-12 text-grey-shade-3 font-300" />
+                </div>
+                <button
+                    class="bg-grey-shade-0 flex items-center rounded p-2 text-grey-shade-14 text-12 font-400 "
+                >
+                    <span class="pr-2">
+                        {html! { render_svg!("majesticons:file", color="#ffff",width="14px")}}
+                    </span>
+                    {"Export"}
+                </button>
+            </div>
+            </div>
+            <div class="h-[360px] w-full"  id="total-users-chart">
+            </div>
         </div>
-
-        </>
-        // <div class=" rounded-xl border border-grey-shade-11 p-4 space-y-2">
-        //     <div class="flex items-center justify-between space-x-5">
-        //     <div class="flex justify-between items-center">
-        //         <h1 class="text-16 font-400 leading-20 text-grey-shade-1">{"Total user"}</h1>
-        //     </div>
-        //     <div class="flex items-center justify-end space-x-2">
-        //         <div class="flex items-center rounded border border-grey-shade-11 justify-start px-3 py-2" >
-        //             <label for="datepicker" class="text-12 text-grey-shade-3 font-300">{"From:"}</label>
-        //             <input id="datepicker" type="date" class=" outline-none text-12 text-grey-shade-3 font-300" />
-        //         </div>
-        //         <div class="flex items-center rounded border border-grey-shade-11 justify-start px-3 py-2" >
-        //             <label for="datepicker" class="text-12 text-grey-shade-3 font-300">{"To:"}</label>
-        //             <input id="datepicker" type="date" class=" outline-none text-12 text-grey-shade-3 font-300" />
-        //         </div>
-        //         <button
-        //             class="bg-grey-shade-0 flex items-center rounded p-2 text-grey-shade-14 text-12 font-400 "
-        //         >
-        //             <span class="pr-2">
-        //                 {html! { render_svg!("majesticons:file", color="#ffff",width="14px")}}
-        //             </span>
-        //             {"Export"}
-        //         </button>
-        //     </div>
-        //     </div>
-        //     <div class="h-[360px]">
-        //         <svg class="chart" viewBox={format!("0 0 {} {}", WIDTH, HEIGHT)} preserveAspectRatio="none">
-        //                 <Series<i64, f32>
-        //                     series_type={Type::Line}
-        //                     name="some-series"
-        //                     data={data_set}
-        //                     horizontal_scale={Rc::clone(&h_scale)}
-        //                     horizontal_scale_step={Duration::days(2).num_milliseconds()}
-        //                     tooltipper={Rc::clone(&tooltip)}
-        //                     vertical_scale={Rc::clone(&v_scale)}
-        //                     x={MARGIN} y={MARGIN} width={WIDTH - (MARGIN * 2.0)} height={HEIGHT - (MARGIN * 2.0)} />
-
-        //                 <Axis<f32>
-        //                     name="some-y-axis"
-        //                     orientation={Orientation::Left}
-        //                     scale={Rc::clone(&v_scale)}
-        //                     x1={MARGIN} y1={MARGIN} xy2={HEIGHT - MARGIN}
-        //                     tick_len={TICK_LENGTH}
-        //                     // title={"Some Y thing".to_string()}
-        //                 />
-
-        //                 <Axis<i64>
-        //                     name="some-x-axis"
-        //                     orientation={Orientation::Bottom}
-        //                     scale={Rc::clone(&h_scale)}
-        //                     x1={MARGIN} y1={HEIGHT - MARGIN} xy2={WIDTH - MARGIN}
-        //                     tick_len={TICK_LENGTH}
-        //                     // title={"Some X thing".to_string()}
-        //                 />
-
-        //         </svg>
-        //     </div>
-        // </div>
     }
 }
 
 #[function_component(TotalVolumeCard)]
 fn total_volume_card() -> Html {
+    use_effect(|| {
+        binding::createProfitLossChart();
+        || {}
+    });
+
     html! {
         <div class=" rounded-xl border border-grey-shade-11 p-4 space-y-2">
             <div class="flex items-center justify-between space-x-5">
@@ -262,27 +191,74 @@ fn total_volume_card() -> Html {
                     <h3 class="text-24 font-600 leading-32 text-success">{"$210,691"}</h3>
                 </div>
             </div>
-            <div class="h-[360px]"></div>
+            <div class="h-[360px]" id="profit-loss-chart-container"></div>
         </div>
     }
 }
 
+// #[derive(Serialize, Deserialize)]
+// struct CircleChartData {
+//     label: String,
+//     value: i32,
+// }
+
 #[function_component(TopPlatformCard)]
 fn top_platform_card() -> Html {
+    // let circle_data = vec![
+    //     CircleChartData {
+    //         label: "Evolution".to_string(),
+    //         value: 5400,
+    //     },
+    //     CircleChartData {
+    //         label: "Eugi".to_string(),
+    //         value: 4520,
+    //     },
+    //     CircleChartData {
+    //         label: "Power".to_string(),
+    //         value: 2300,
+    //     },
+    //     CircleChartData {
+    //         label: "Participate".to_string(),
+    //         value: 4900,
+    //     },
+    // ];
+
+    // Convert the data to JsValue
+    // let json_string = serde_json::to_string(&circle_data).unwrap();
+
+    // Call createCircleChart when the component is mounted
+    use_effect(|| {
+        binding::createCircleChart();
+        || {}
+    });
+
     html! {
         <div class=" rounded-xl border border-grey-shade-11 p-4 space-y-2">
-            <div class="flex items-start justify-start ">
-                <div class="flex justify-between items-center">
+            <div>
+                <div>
                     <h1 class="text-16 font-400 leading-20 text-grey-shade-1">{"Top platform"}</h1>
                 </div>
+                    <div id="circle-chart-container"></div>
             </div>
-            <div class="h-[360px]"></div>
+            // <div class="flex items-start justify-start ">
+            //     <div class="flex justify-between items-center">
+            //         <h1 class="text-16 font-400 leading-20 text-grey-shade-1">{"Top platform"}</h1>
+            //     </div>
+            // </div>
+            // <div class="flex items-center justify-center">
+
+            // </div>
         </div>
     }
 }
 
 #[function_component(TopupsAndCommissionCard)]
 fn topups_commision_card() -> Html {
+    use_effect(move || {
+        binding::createTopupsCommissionChart();
+        || {}
+    });
+
     html! {
         <div class=" rounded-xl border border-grey-shade-11 p-4 space-y-2">
             <div class="flex items-center justify-between">
@@ -320,7 +296,7 @@ fn topups_commision_card() -> Html {
                 </div>
             </div>
 
-            <div class="h-[360px]"></div>
+            <div id="topup-chart-container"></div>
         </div>
     }
 }

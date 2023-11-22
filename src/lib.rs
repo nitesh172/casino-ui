@@ -1,4 +1,5 @@
 mod apis;
+mod binding;
 mod components;
 mod routes;
 mod stores;
