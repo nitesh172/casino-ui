@@ -1,16 +1,36 @@
 use yew::prelude::*;
 
 use crate::{
-    components::{
-        atoms::{ label::{ Label, LabelStyle }, text_input::TextInput },
-        organisms::paginator::Paginator,
-    },
+    components::organisms::paginator::Paginator,
     render_svg,
 };
 
 #[function_component(Teams)]
 pub fn teams() -> Html {
-    let t_Head = vec!["Username", "Email ID", "Reset password", "Role", "Status", "Actions"];
+    let t_head = vec!["Username", "Email ID", "Reset password", "Role", "Status", "Actions"];
+
+    #[derive(Clone, Properties, PartialEq)]
+    pub struct UserProps {
+        pub name: String,
+        pub email_address: String,
+        pub role: String,
+        pub status: String,
+    }
+
+    let users = vec![
+        UserProps {
+            name: "Dianne Russell".into(),
+            email_address: "JaneCooper@gmail.com".into(),
+            role: "Administrator".into(),
+            status: "Active".into(),
+        },
+        UserProps {
+            name: "Dianne Russell".into(),
+            email_address: "JaneCooper2@gmail.com".into(),
+            role: "Member".into(),
+            status: "Inactive".into(),
+        }
+    ];
 
     let is_open = use_state(|| false);
 
@@ -69,120 +89,82 @@ pub fn teams() -> Html {
                     <thead class="bg-grey-shade-13">
                         <tr class="">
                             {
-                                t_Head.into_iter().map(|name| {
+                                t_head.into_iter().map(|name| {
                                     html!{<th key={name} class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{name}</th>}
                                 }).collect::<Html>()
                             }
                         </tr>
                     </thead>
                     <tbody class="overflow-y-auto">
-                        <tr>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1">{"Dianne Russell"}</td>
-                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"JaneCooper@gmail.com"}</td>
-                            <td class="py-3  text-left text-14 font-medium text-warning tracking-wider flex flex-row gap-0.5">
-                                <span>{html! { render_svg!    ("material-symbols-light:lock-sharp", color="#C53A3A",width="18px")}}</span>
-                                {"Reset password"}
-                            </td>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                <span class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                    {"Administrator"}
-                                </span>
-                            </td>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                <span class="rounded-full py-1 px-2 flex-row gap-1 text-white bg-success">
-                                    {"Active"}
-                                </span>
-                            </td>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                                <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                    <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Edit"}</li>
-                                    <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Delete"}</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1">{"Dianne Russell"}</td>
-                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"JaneCooper@gmail.com"}</td>
-                            <td class="py-3  text-left text-14 font-medium text-warning tracking-wider flex flex-row gap-0.5">
-                                <span>{html! { render_svg!    ("material-symbols-light:lock-sharp", color="#C53A3A",width="18px")}}</span>
-                                {"Reset password"}
-                            </td>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                <span class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">{"Member"}</span>
-                            </td>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                <span class="rounded-full py-1 px-2 flex-row gap-1 text-white bg-warning">{"Inactive"}</span>
-                            </td>
-                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                                <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                    <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Edit"}</li>
-                                    <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Delete"}</li>
-                                </ul>
-                            </td>
-                        </tr>
+                        {
+                            users.clone().iter().map(|user| {
+                                html!{
+                                    <tr>
+                                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1">{user.clone().name}</td>
+                                        <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().email_address}</td>
+                                        <td class="py-3  text-left text-14 font-medium text-warning tracking-wider flex flex-row gap-0.5">
+                                            <span>{html! { render_svg!    ("material-symbols-light:lock-sharp", color="#C53A3A",width="18px")}}</span>
+                                            {"Reset password"}
+                                        </td>
+                                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
+                                            <span class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
+                                                {user.clone().role}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
+                                            <span class={format!("rounded-full py-1 px-2 flex-row gap-1 text-white {} ", if user.clone().status == "Active" {"bg-success"} else {"bg-warning"})}>
+                                                {user.clone().status}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
+                                            <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
+                                            <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
+                                                <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Edit"}</li>
+                                                <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Delete"}</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                }
+                            }).collect::<Html>()
+                        }
                     </tbody>
                 </table>
                 <div class="flex lg:hidden flex-col gap-4 mt-8">
-                    <div class="rounded-xl border p-4 flex flex-col gap-2.5">
-                        <div class="flex flex-row justify-between">
-                            <div class="flex flex-col gap-2.5">
-                                <div class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                    {"Administrator"}
+                    {
+                        users.clone().iter().map(|user| {
+                            html!{
+                                <div class="rounded-xl border p-4 flex flex-col gap-2.5">
+                                    <div class="flex flex-row justify-between">
+                                        <div class="flex flex-col gap-2.5">
+                                            <div class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
+                                                {user.clone().role}
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <div class="font-400">{user.clone().name}</div>
+                                                <div class="text-12 text-grey-shade-5">{user.clone().email_address}</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
+                                            <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
+                                            <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
+                                                <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Edit"}</li>
+                                                <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Delete"}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-row justify-between items-center">
+                                        <div class="text-12 font-medium text-warning flex flex-row gap-0.5">
+                                            <span>{html! { render_svg!    ("material-symbols-light:lock-sharp", color="#C53A3A",width="18px")}}</span>
+                                            {"Reset password"}
+                                        </div>
+                                        <div class={format!("rounded-full py-1 px-2 flex-row gap-1 text-white {} ", if user.clone().status == "Active" {"bg-success"} else {"bg-warning"})}>
+                                            {user.clone().status}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col">
-                                    <div class="font-400">{"Beckham Andy"}</div>
-                                    <div class="text-12 text-grey-shade-5">{"JaneCooper@gmail.com"}</div>
-                                </div>
-                            </div>
-                            <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
-                                <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                    <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Edit"}</li>
-                                    <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Delete"}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="flex flex-row justify-between items-center">
-                            <div class="text-12 font-medium text-warning flex flex-row gap-0.5">
-                                <span>{html! { render_svg!    ("material-symbols-light:lock-sharp", color="#C53A3A",width="18px")}}</span>
-                                {"Reset password"}
-                            </div>
-                            <div class="rounded-full py-1 px-2 flex-row gap-1 text-white bg-success">
-                                {"Active"}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="rounded-xl border p-4 flex flex-col gap-2.5">
-                        <div class="flex flex-row justify-between">
-                            <div class="flex flex-col gap-2.5">
-                                <div class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                    {"Member"}
-                                </div>
-                                <div class="flex flex-col">
-                                    <div class="font-400">{"Beckham Andy"}</div>
-                                    <div class="text-12 text-grey-shade-5">{"JaneCooper@gmail.com"}</div>
-                                </div>
-                            </div>
-                            <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
-                                <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                    <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Edit"}</li>
-                                    <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">{"Delete"}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="flex flex-row justify-between items-center">
-                            <div class="text-12 font-medium text-warning flex flex-row gap-0.5">
-                                <span>{html! { render_svg!    ("material-symbols-light:lock-sharp", color="#C53A3A",width="18px")}}</span>
-                                {"Reset password"}
-                            </div>
-                            <div class="rounded-full py-1 px-2 flex-row gap-1 text-white bg-warning">
-                                {"Inactive"}
-                            </div>
-                        </div>
-                    </div>
+                            }
+                        }).collect::<Html>()
+                    }
                 </div>
             </div>
         </div>

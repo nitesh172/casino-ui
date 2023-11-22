@@ -1,16 +1,13 @@
 use yew::prelude::*;
 
 use crate::{
-    components::{
-        atoms::{ label::{ Label, LabelStyle }, text_input::TextInput },
-        organisms::paginator::Paginator,
-    },
+    components::organisms::paginator::Paginator,
     render_svg,
 };
 
 #[function_component(Participants)]
 pub fn participants() -> Html {
-    let t_Head1 = vec![
+    let t_head = vec![
         "ID",
         "Username",
         "Game name",
@@ -23,17 +20,42 @@ pub fn participants() -> Html {
         "Actions"
     ];
 
-    let t_Head2 = vec![
-        "ID",
-        "Username",
-        "Game name",
-        "Bet amount",
-        "Won/lost amount",
-        "Total amount",
-        "Email ID",
-        "Last active date/time",
-        "Status",
-        "Actions"
+    #[derive(Clone, Properties, PartialEq)]
+    pub struct UserProps {
+        pub name: String,
+        pub id: String,
+        pub game_name: String,
+        pub bet_amount: String,
+        pub won_lost_amount: String,
+        pub total_amount: String,
+        pub email_address: String,
+        pub last_active: String,
+        pub status: String,
+    }
+
+    let users = vec![
+        UserProps {
+            id: "WW20011".into(),
+            name: "Dianne Russell".into(),
+            game_name: "Roulet".into(),
+            bet_amount: "25.50".into(),
+            won_lost_amount: "25.50".into(),
+            total_amount: "51.00".into(),
+            email_address: "JaneCooper@gmail.com".into(),
+            last_active: "12-10-2023 | 12:00 AM".into(),
+            status: "Winner".into(),
+        },
+        UserProps {
+            id: "WW20011".into(),
+            name: "Dianne Russell".into(),
+            game_name: "Roulet".into(),
+            bet_amount: "25.50".into(),
+            won_lost_amount: "25.50".into(),
+            total_amount: "-".into(),
+            email_address: "JaneCooper2@gmail.com".into(),
+            last_active: "12-10-2023 | 12:00 AM".into(),
+            status: "Looser".into(),
+        }
     ];
 
     let is_open = use_state(|| false);
@@ -106,200 +128,124 @@ pub fn participants() -> Html {
                         <thead>
                             <tr class="">
                                 {
-                                    t_Head1.into_iter().map(|name| {
+                                    t_head.clone().into_iter().map(|name| {
                                         html!{<th key={name} class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{name}</th>}
                                     }).collect::<Html>()
                                 }
                             </tr>
                         </thead>
                         <tbody class="overflow-y-auto">
-                            <tr>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"WW20011"}</td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1">
-                                    <div class="flex flex-row items-center gap-2 w-full">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <span>
-                                            {"Dianne Russell"}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Roulet"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-success tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-success tracking-wider">{"$50.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"JaneCooper@gmail.com"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                    <span class="rounded-full py-1 px-2 flex-row gap-1 bg-info text-white">
-                                        {"Winner"}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"WW20011"}</td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1">
-                                    <div class="flex flex-row items-center gap-2 w-full">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <span>
-                                            {"Dianne Russell"}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Roulet"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-warning tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-warning tracking-wider">{"-"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"JaneCooper@gmail.com"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                    <span class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                        {"Looser"}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
+                            {
+                                users.clone().iter().map(|user| {
+                                    html!{
+                                        <tr>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().id}</td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1">
+                                                <div class="flex flex-row items-center gap-2 w-full">
+                                                    <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
+                                                    <span>
+                                                        {user.clone().name}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().game_name}</td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{format!("{}{}", "$", user.clone().bet_amount)}</td>
+                                            <td class={format!("py-3  text-left text-14 font-medium tracking-wider {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {format!("{}{}", "$", user.clone().won_lost_amount)}</td>
+                                            <td class={format!("py-3  text-left text-14 font-medium tracking-wider {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {if user.clone().status == "Winner" {format!("{}{}", "$", user.clone().total_amount)} else {format!("{}", "-")}}</td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().email_address}</td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider flex flex-row gap-0.5">
+                                                <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
+                                                {user.clone().last_active}
+                                            </td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
+                                                <span class={format!("rounded-full py-1 px-2 flex-row gap-1 {} ", if user.clone().status == "Winner"{ " bg-info text-white" } else { "bg-grey-shade-11" })}>
+                                                    {user.clone().status}
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
+                                                <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
+                                                <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
+                                                    <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                        
+                                                        { "View" }
+                                                    </li>
+                                                    <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                        
+                                                        { "Ban" }
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    }
+                                }).collect::<Html>()
+                            }
                         </tbody>
                     </table>
                     <div class="flex lg:hidden flex-col gap-4 mt-4">
-                        <div class="border p-4 flex flex-col gap-2.5">
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="flex flex-col gap-2.5">
-                                    <div class="text-14 font-medium text-grey-shade-1">{"WW20011"}</div>
-                                    <div class="flex flex-row gap-1.5 items-center">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <div class="flex flex-col gap-1">
-                                            <div class="text-grey-shade-5 text-12">{"Dianne Russell"}</div>
-                                            <div class="text-14">{"JaneCooper@gmail.com"}</div>
+                        {
+                            users.clone().iter().map(|user| {
+                                html!{<div class="border p-4 flex flex-col gap-2.5">
+                                    <div class="flex flex-row justify-between items-center">
+                                        <div class="flex flex-col gap-2.5">
+                                            <div class="text-14 font-medium text-grey-shade-1">{user.clone().id}</div>
+                                            <div class="flex flex-row gap-1.5 items-center">
+                                                <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
+                                                <div class="flex flex-col gap-1">
+                                                    <div class="text-grey-shade-5 text-12">{user.clone().name}</div>
+                                                    <div class="text-14">{user.clone().email_address}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
+                                            <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
+                                            <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
+                                                <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                    
+                                                    { "View" }
+                                                </li>
+                                                <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                    
+                                                    { "Ban" }
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="flex flex-row">
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Game name"}</div>
-                                    <div class="text-14">{"Roulet"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Bet amount"}</div>
-                                    <div class="text-14">{"$25.50"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Won/lost amount"}</div>
-                                    <div class="text-14 text-success">{"$25.50"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Total amount"}</div>
-                                    <div class="text-14 text-success">{"$50.50"}</div>
-                                </div>
-                            </div>
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="rounded-full py-1 px-2 flex-row gap-1 bg-info text-white">
-                                    {"Winner"}
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border p-4 flex flex-col gap-2.5">
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="flex flex-col gap-2.5">
-                                    <div class="text-14 font-medium text-grey-shade-1">{"WW20011"}</div>
-                                    <div class="flex flex-row gap-1.5 items-center">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <div class="flex flex-col gap-1">
-                                            <div class="text-grey-shade-5 text-12">{"Dianne Russell"}</div>
-                                            <div class="text-14">{"JaneCooper@gmail.com"}</div>
+                                    <div class="flex flex-row">
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Game name"}</div>
+                                            <div class="text-14">{user.clone().game_name}</div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Bet amount"}</div>
+                                            <div class="text-14">{format!("{}{}", "$", user.clone().bet_amount)}</div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Won/lost amount"}</div>
+                                            <div class={format!("text-14 font-medium {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {format!("{}{}", "$", user.clone().won_lost_amount)}
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Total amount"}</div>
+                                            <div class={format!("text-14 font-medium {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {if user.clone().status == "Winner" {format!("{}{}", "$", user.clone().total_amount)} else {format!("{}", "-")}}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="flex flex-row">
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Game name"}</div>
-                                    <div class="text-14">{"Roulet"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Bet amount"}</div>
-                                    <div class="text-14">{"$25.50"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Won/lost amount"}</div>
-                                    <div class="text-14 text-warning">{"-"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Total amount"}</div>
-                                    <div class="text-14 text-warning">{"-"}</div>
-                                </div>
-                            </div>
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                    {"Looser"}
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </div>
-                            </div>
-                        </div>
+                                    <div class="flex flex-row justify-between items-center">
+                                        <div class={format!("rounded-full py-1 px-2 flex-row gap-1 {} ", if user.clone().status == "Winner"{ " bg-info text-white" } else { "bg-grey-shade-11" })}>
+                                            {user.clone().status}
+                                        </div>
+                                        <div class="text-12 font-medium text-grey-shade-1 flex flex-row gap-0.5">
+                                            <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
+                                            {user.clone().last_active}
+                                        </div>
+                                    </div>
+                                </div>}
+                            }).collect::<Html>()
+                        }
                     </div>
                 </div>
                 <div class="container mx-auto p-8 w-full">
@@ -319,200 +265,124 @@ pub fn participants() -> Html {
                         <thead>
                             <tr class="">
                                 {
-                                    t_Head2.into_iter().map(|name| {
+                                    t_head.clone().into_iter().map(|name| {
                                         html!{<th key={name} class="py-3 text-left text-14 font-medium text-grey-shade-5 tracking-wider">{name}</th>}
                                     }).collect::<Html>()
                                 }
                             </tr>
                         </thead>
                         <tbody class="overflow-y-auto">
-                            <tr>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"WW20011"}</td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1">
-                                    <div class="flex flex-row items-center gap-2 w-full">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <span>
-                                            {"Dianne Russell"}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Roulet"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-success tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-success tracking-wider">{"$50.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"JaneCooper@gmail.com"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                    <span class="rounded-full py-1 px-2 flex-row gap-1 bg-info text-white">
-                                        {"Winner"}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"WW20011"}</td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1">
-                                    <div class="flex flex-row items-center gap-2 w-full">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <span>
-                                            {"Dianne Russell"}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"Roulet"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-warning tracking-wider">{"$25.50"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-warning tracking-wider">{"-"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{"JaneCooper@gmail.com"}</td>
-                                <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
-                                    <span class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                        {"Looser"}
-                                    </span>
-                                </td>
-                                <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
+                            {
+                                users.clone().iter().map(|user| {
+                                    html!{
+                                        <tr>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().id}</td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1">
+                                                <div class="flex flex-row items-center gap-2 w-full">
+                                                    <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
+                                                    <span>
+                                                        {user.clone().name}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().game_name}</td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{format!("{}{}", "$", user.clone().bet_amount)}</td>
+                                            <td class={format!("py-3  text-left text-14 font-medium tracking-wider {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {format!("{}{}", "$", user.clone().won_lost_amount)}</td>
+                                            <td class={format!("py-3  text-left text-14 font-medium tracking-wider {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {if user.clone().status == "Winner" {format!("{}{}", "$", user.clone().total_amount)} else {format!("{}", "-")}}</td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{user.clone().email_address}</td>
+                                            <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider flex flex-row gap-0.5">
+                                                <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
+                                                {user.clone().last_active}
+                                            </td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider font-uppercase pr-5">
+                                                <span class={format!("rounded-full py-1 px-2 flex-row gap-1 {} ", if user.clone().status == "Winner"{ " bg-info text-white" } else { "bg-grey-shade-11" })}>
+                                                    {user.clone().status}
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
+                                                <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
+                                                <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
+                                                    <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                        
+                                                        { "View" }
+                                                    </li>
+                                                    <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                        
+                                                        { "Ban" }
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    }
+                                }).collect::<Html>()
+                            }
                         </tbody>
                     </table>
                     <div class="flex lg:hidden flex-col gap-4 mt-4">
-                        <div class="border p-4 flex flex-col gap-2.5">
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="flex flex-col gap-2.5">
-                                    <div class="text-14 font-medium text-grey-shade-1">{"WW20011"}</div>
-                                    <div class="flex flex-row gap-1.5 items-center">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <div class="flex flex-col gap-1">
-                                            <div class="text-grey-shade-5 text-12">{"Dianne Russell"}</div>
-                                            <div class="text-14">{"JaneCooper@gmail.com"}</div>
+                        {
+                            users.clone().iter().map(|user| {
+                                html!{<div class="border p-4 flex flex-col gap-2.5">
+                                    <div class="flex flex-row justify-between items-center">
+                                        <div class="flex flex-col gap-2.5">
+                                            <div class="text-14 font-medium text-grey-shade-1">{user.clone().id}</div>
+                                            <div class="flex flex-row gap-1.5 items-center">
+                                                <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
+                                                <div class="flex flex-col gap-1">
+                                                    <div class="text-grey-shade-5 text-12">{user.clone().name}</div>
+                                                    <div class="text-14">{user.clone().email_address}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
+                                            <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
+                                            <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
+                                                <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                    
+                                                    { "View" }
+                                                </li>
+                                                <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
+                                                    
+                                                    { "Ban" }
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="flex flex-row">
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Game name"}</div>
-                                    <div class="text-14">{"Roulet"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Bet amount"}</div>
-                                    <div class="text-14">{"$25.50"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Won/lost amount"}</div>
-                                    <div class="text-14 text-success">{"$25.50"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Total amount"}</div>
-                                    <div class="text-14 text-success">{"$50.50"}</div>
-                                </div>
-                            </div>
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="rounded-full py-1 px-2 flex-row gap-1 bg-info text-white">
-                                    {"Winner"}
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="border p-4 flex flex-col gap-2.5">
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="flex flex-col gap-2.5">
-                                    <div class="text-14 font-medium text-grey-shade-1">{"WW20011"}</div>
-                                    <div class="flex flex-row gap-1.5 items-center">
-                                        <img src="img/circle_profile.png" class="w-8 h-8" alt=""/>
-                                        <div class="flex flex-col gap-1">
-                                            <div class="text-grey-shade-5 text-12">{"Dianne Russell"}</div>
-                                            <div class="text-14">{"JaneCooper@gmail.com"}</div>
+                                    <div class="flex flex-row">
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Game name"}</div>
+                                            <div class="text-14">{user.clone().game_name}</div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Bet amount"}</div>
+                                            <div class="text-14">{format!("{}{}", "$", user.clone().bet_amount)}</div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Won/lost amount"}</div>
+                                            <div class={format!("text-14 font-medium {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {format!("{}{}", "$", user.clone().won_lost_amount)}
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-1 p-1">
+                                            <div class="text-grey-shade-5 text-12">{"Total amount"}</div>
+                                            <div class={format!("text-14 font-medium {} ", if user.clone().status == "Winner"{ " text-success" } else { "text-warning" })}>
+                                                {if user.clone().status == "Winner" {format!("{}{}", "$", user.clone().total_amount)} else {format!("{}", "-")}}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
-                                    <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
-                                    <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                        <li onclick={modal_handle.clone()} class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "View" }
-                                        </li>
-                                        <li class="px-4 py-2 text-grey-shade-0 hover:text-grey-shade-2  hover:bg-grey-shade-12 ">
-                                            
-                                            { "Ban" }
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="flex flex-row">
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Game name"}</div>
-                                    <div class="text-14">{"Roulet"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Bet amount"}</div>
-                                    <div class="text-14">{"$25.50"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Won/lost amount"}</div>
-                                    <div class="text-14 text-warning">{"-"}</div>
-                                </div>
-                                <div class="flex flex-col gap-1 p-1">
-                                    <div class="text-grey-shade-5 text-12">{"Total amount"}</div>
-                                    <div class="text-14 text-warning">{"-"}</div>
-                                </div>
-                            </div>
-                            <div class="flex flex-row justify-between items-center">
-                                <div class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
-                                    {"Looser"}
-                                </div>
-                                <div class="text-12 font-medium text-grey-shade-1 flex flex-row gap-0.5">
-                                    <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
-                                    {"12-10-2023 | 12:00 AM"}
-                                </div>
-                            </div>
-                        </div>
+                                    <div class="flex flex-row justify-between items-center">
+                                        <div class={format!("rounded-full py-1 px-2 flex-row gap-1 {} ", if user.clone().status == "Winner"{ " bg-info text-white" } else { "bg-grey-shade-11" })}>
+                                            {user.clone().status}
+                                        </div>
+                                        <div class="text-12 font-medium text-grey-shade-1 flex flex-row gap-0.5">
+                                            <span>{html! { render_svg!    ("uis:calender", color="#000000",width="18px")}}</span>
+                                            {user.clone().last_active}
+                                        </div>
+                                    </div>
+                                </div>}
+                            }).collect::<Html>()
+                        }
                     </div>
                 </div>
             </div>
