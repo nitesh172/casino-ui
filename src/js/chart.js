@@ -1,33 +1,18 @@
-export function totalUsersChart(containerWidth, containerHeight) {
-  const data = [
-    { month: 'Jan', value: 3000 },
-    { month: 'Feb', value: 3000 },
-    { month: 'Mar', value: 3000 },
-    { month: 'Apr', value: 3000 },
-    { month: 'May', value: 3000 },
-    { month: 'Jun', value: 3200 },
-    { month: 'Jul', value: 3200 },
-    { month: 'Aug', value: 8000 },
-    { month: 'Sep', value: 8000 },
-    { month: 'Oct', value: 8000 },
-    { month: 'Nov', value: 8000 },
-    { month: 'Dec', value: 8000 },
-  ];
-
+export function totalUsersChart(containerWidth, containerHeight, dateData) {
+  let data = dateData;
   const margin = { top: 10, right: 10, bottom: 10, left: 20 };
   const width = containerWidth - margin.left - margin.right;
   const height = containerHeight - margin.top - margin.bottom;
 
+  console.log(data);
+
   const xScale = d3
     .scaleBand()
-    .domain(data.map((d) => d.month))
+    .domain(data.map((d) => d.key))
     .range([0, width])
     .padding(0.1);
 
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, 10000]) // Y-axis range from 0 to 10k
-    .range([height, 0]);
+  const yScale = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
 
   const xAxis = d3.axisBottom(xScale).tickSize(0);
   const yAxis = d3
@@ -38,17 +23,22 @@ export function totalUsersChart(containerWidth, containerHeight) {
 
   const line = d3
     .line()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y((d) => yScale(d.value))
     .curve(d3.curveCardinal);
 
   const area = d3
     .area()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y0(yScale(1000))
     .y1((d) => yScale(d.value))
     .curve(d3.curveCardinal);
 
+  // Remove existing SVG
+  d3.selectAll('#total-users-chart svg').remove();
+  console.log('Existing SVG removed');
+
+  // Create a new SVG and add the chart
   const svg = d3
     .select('#total-users-chart')
     .append('svg')
@@ -56,6 +46,7 @@ export function totalUsersChart(containerWidth, containerHeight) {
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
+  console.log('New SVG created');
 
   // X-axis
   svg
@@ -95,54 +86,76 @@ export function totalUsersChart(containerWidth, containerHeight) {
     .attr('fill', 'url(#gradient)') // Use the gradient
     .attr('d', area);
 
-  // Line
-  let linePath = svg
+  svg
     .append('path')
     .datum(data)
     .attr('fill', 'none')
     .attr('stroke', 'red')
     .attr('stroke-width', 2)
     .attr('d', line);
+
+  const defaultMonth = data[0].key;
+
+  const circles = svg
+    .selectAll('circle')
+    .data(data)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => xScale(d.key) + xScale.bandwidth() / 2)
+    .attr('cy', (d) => yScale(d.value))
+    .attr('r', 8) // Adjust the radius as needed
+    .attr('fill', 'red') // Change the color as needed
+    .attr('class', 'data-point')
+    .style('opacity', (d) => (d.key === defaultMonth ? 1 : 0)); // Set initial opacity
+
+  let highlightedData = data.find((d) => d.key === defaultMonth);
+  updateDataDiv(highlightedData);
+
+  circles.on('click', function (event, d) {
+    highlightedData = d;
+    updateDataDiv(d);
+
+    // Highlight the selected circle
+    circles.style('opacity', (dataPoint) => (dataPoint.key === d.key ? 1 : 0));
+  });
+
+  svg.selectAll('.x-axis .tick rect').on('click', function (event, d) {
+    const selectedMonth = d;
+
+    // Update circle opacity based on the selected month
+    circles.style('opacity', (dataPoint) =>
+      dataPoint.key === selectedMonth ? 1 : 0
+    );
+
+    // Update highlighted data
+    highlightedData = data.find((dataPoint) => dataPoint.key === selectedMonth);
+    updateDataDiv(highlightedData);
+  });
+
+  function updateDataDiv(data) {
+    // Update the content of the #users div
+    d3.select('#users').text(`${data.value}`);
+  }
 }
 
-export function createProfitLossChart() {
-  const profitData = [
-    { month: 'Jan', value: 3000 },
-    { month: 'Feb', value: 3000 },
-    { month: 'Mar', value: 3000 },
-    { month: 'Apr', value: 3000 },
-    { month: 'May', value: 3000 },
-    { month: 'Jun', value: 3200 },
-    { month: 'Jul', value: 3200 },
-    { month: 'Aug', value: 8000 },
-    { month: 'Sep', value: 8000 },
-    { month: 'Oct', value: 8000 },
-    { month: 'Nov', value: 8000 },
-    { month: 'Dec', value: 8000 },
-  ];
+export function createProfitLossChart(
+  containerWidth,
+  containerHeight,
+  dateData
+) {
+  const profitData = dateData;
 
-  const lossData = [
-    { month: 'Jan', value: 1000 },
-    { month: 'Feb', value: 1500 },
-    { month: 'Mar', value: 1500 },
-    { month: 'Apr', value: 2000 },
-    { month: 'May', value: 2000 },
-    { month: 'Jun', value: 2000 },
-    { month: 'Jul', value: 3200 },
-    { month: 'Aug', value: 6000 },
-    { month: 'Sep', value: 5000 },
-    { month: 'Oct', value: 4000 },
-    { month: 'Nov', value: 5000 },
-    { month: 'Dec', value: 4000 },
-  ];
+  const lossData = dateData;
 
   const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-  const width = 600 - margin.left - margin.right;
-  const height = 360 - margin.top - margin.bottom;
+  const width = containerWidth - margin.left - margin.right;
+  const height = containerHeight - margin.top - margin.bottom;
+
+  const circleOffset = 4; // Adjust the offset as needed
 
   const xScale = d3
     .scaleBand()
-    .domain(profitData.map((d) => d.month))
+    .domain(profitData.map((d) => d.key))
     .range([0, width])
     .padding(0.1);
 
@@ -151,26 +164,33 @@ export function createProfitLossChart() {
     .domain([0, d3.max([...profitData, ...lossData], (d) => d.value)])
     .range([height, 0]);
 
-  const yAxis = d3.axisLeft(yScale).tickFormat((d) => `${d / 1000}k`);
+  const yAxis = d3
+    .axisLeft(yScale)
+    .tickSize(0)
+    .tickFormat((d) => `${d / 1000}k`);
 
   const profitLine = d3
     .line()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y((d) => yScale(d.value))
     .curve(d3.curveCardinal);
 
   const lossLine = d3
     .line()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y((d) => yScale(d.value))
     .curve(d3.curveCardinal);
 
   const area = d3
     .area()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y0(yScale(0))
     .y1((d) => yScale(d.value))
     .curve(d3.curveCardinal);
+
+  // Remove existing SVG
+  d3.selectAll('#profit-loss-chart-container svg').remove();
+  console.log('Existing SVG removed');
 
   const svg = d3
     .select('#profit-loss-chart-container')
@@ -184,17 +204,40 @@ export function createProfitLossChart() {
   svg
     .append('g')
     .attr('transform', `translate(0,${height})`)
-    .call(d3.axisBottom(xScale));
+    .call(d3.axisBottom(xScale).tickSize(0))
+    .select('.domain')
+    .remove();
 
   // Y-axis
-  svg.append('g').call(yAxis);
+  svg.append('g').call(yAxis).select('.domain').remove();
+
+  // Gradient definition
+  const profitGradient = svg
+    .append('defs')
+    .append('linearGradient')
+    .attr('id', 'profitGradient')
+    .attr('x1', '0%')
+    .attr('y1', '0%')
+    .attr('x2', '0%')
+    .attr('y2', '100%');
+
+  profitGradient
+    .append('stop')
+    .attr('offset', '10%')
+    .attr('style', 'stop-color:#83BF94;stop-opacity:1');
+
+  profitGradient
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('style', 'stop-color:#83BF94;stop-opacity:0');
 
   // Profit Area
   svg
     .append('path')
     .datum(profitData)
-    .attr('fill', 'rgba(0, 255, 0, 0.2)') // Green shade
-    .attr('d', area);
+    .attr('fill', 'url(#profitGradient)') // Green shade
+    .attr('d', area)
+    .style('pointer-events', 'none');
 
   // Profit Line
   svg
@@ -203,14 +246,36 @@ export function createProfitLossChart() {
     .attr('fill', 'none')
     .attr('stroke', 'green')
     .attr('stroke-width', 2)
-    .attr('d', profitLine);
+    .attr('d', profitLine)
+    .style('pointer-events', 'none');
+
+  // Gradient definition
+  const lossGradient = svg
+    .append('defs')
+    .append('linearGradient')
+    .attr('id', 'lossGradient')
+    .attr('x1', '0%')
+    .attr('y1', '0%')
+    .attr('x2', '0%')
+    .attr('y2', '100%');
+
+  lossGradient
+    .append('stop')
+    .attr('offset', '10%')
+    .attr('style', 'stop-color:#C53A3A;stop-opacity:1');
+
+  lossGradient
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('style', 'stop-color:#C53A3A;stop-opacity:0');
 
   // Loss Area
   svg
     .append('path')
     .datum(lossData)
-    .attr('fill', 'rgba(255, 0, 0, 0.2)') // Red shade
-    .attr('d', area);
+    .attr('fill', 'url(#lossGradient)') // Red shade
+    .attr('d', area)
+    .style('pointer-events', 'none');
 
   // Loss Line
   svg
@@ -219,7 +284,80 @@ export function createProfitLossChart() {
     .attr('fill', 'none')
     .attr('stroke', 'red')
     .attr('stroke-width', 2)
-    .attr('d', lossLine);
+    .attr('d', lossLine)
+    .style('pointer-events', 'none');
+
+  const defaultProfitMonth = profitData[0].key;
+  const defaultLossMonth = lossData[0].key;
+
+  let highlightedProfitData = profitData.find(
+    (d) => d.key === defaultProfitMonth
+  );
+
+  updateProfitDataDiv(highlightedProfitData);
+  let highlightedLossData = lossData.find((d) => d.key === defaultLossMonth);
+
+  updateLossDataDiv(highlightedLossData);
+
+  const profitCircles = svg
+    .selectAll('.profit-circle')
+    .data(profitData)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => xScale(d.key) + xScale.bandwidth() / 2)
+    .attr('cy', (d) => yScale(d.value) - circleOffset)
+    .attr('r', 8) // Adjust the radius as needed
+    .attr('fill', 'green') // Change the color as needed
+    .attr('class', 'profit-circle')
+    .style('opacity', (d) => (d.key === defaultProfitMonth ? 1 : 0))
+    .style('pointer-events', 'all')
+    .on('click', function (event, d) {
+      highlightedProfitData = d;
+      updateProfitDataDiv(d);
+
+      // Highlight the selected circle
+      profitCircles.style('opacity', (dataPoint) =>
+        dataPoint.key === d.key ? 1 : 0
+      );
+    })
+    .on('mouseover', function () {
+      this.parentNode.appendChild(this);
+    });
+
+  const lossCircles = svg
+    .selectAll('.loss-circle')
+    .data(lossData)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => xScale(d.key) + xScale.bandwidth() / 2)
+    .attr('cy', (d) => yScale(d.value) + circleOffset)
+    .attr('r', 8) // Adjust the radius as needed
+    .attr('fill', 'red') // Change the color as needed
+    .attr('class', 'loss-circle')
+    .style('opacity', (d) => (d.key === defaultLossMonth ? 1 : 0))
+    .style('pointer-events', 'all')
+    .on('click', function (event, d) {
+      highlightedLossData = d;
+      updateLossDataDiv(d);
+
+      // Highlight the selected circle
+      lossCircles.style('opacity', (dataPoint) =>
+        dataPoint.key === d.key ? 1 : 0
+      );
+    })
+    .on('mouseover', function () {
+      this.parentNode.appendChild(this);
+    });
+
+  function updateProfitDataDiv(data) {
+    // Update the content of the #profit div
+    d3.select('#totalProfit ').text(`${data.value}`);
+  }
+
+  function updateLossDataDiv(data) {
+    // Update the content of the #loss div
+    d3.select('#totalVolume').text(`${data.value}`);
+  }
 }
 
 export function createCircleChart() {
@@ -249,11 +387,11 @@ export function createCircleChart() {
   const svg = d3
     .select('#circle-chart-container')
     .append('svg')
-    .attr('width', 400)
+    .attr('width', 200)
     .attr('height', 200);
 
   // Set the center and radius of the circle
-  const centerX = 200;
+  const centerX = 100;
   const centerY = 100;
   const radius = 80;
 
@@ -296,81 +434,61 @@ export function createCircleChart() {
     .attr('cy', centerY)
     .attr('r', 70)
     .attr('fill', 'white');
-
-  // const labels = svg
-  //   .selectAll('text')
-  //   .data(pie(data))
-  //   .enter()
-  //   .append('text')
-  //   .attr('transform', (d) => `translate(${arc.centroid(d)})`)
-  //   .attr('text-anchor', 'middle')
-  //   .text((d) => d.data.label);
 }
 
-export function createTopupsCommissionChart() {
-  const profitData = [
-    { month: 'Jan', value: 3000 },
-    { month: 'Feb', value: 3000 },
-    { month: 'Mar', value: 3000 },
-    { month: 'Apr', value: 3000 },
-    { month: 'May', value: 3000 },
-    { month: 'Jun', value: 3200 },
-    { month: 'Jul', value: 3200 },
-    { month: 'Aug', value: 7000 },
-    { month: 'Sep', value: 5000 },
-    { month: 'Oct', value: 4000 },
-    { month: 'Nov', value: 6000 },
-    { month: 'Dec', value: 5000 },
-  ];
+export function createTopupsCommissionChart(
+  containerWidth,
+  containerHeight,
+  dateData
+) {
+  const profitData = dateData;
 
-  const lossData = [
-    { month: 'Jan', value: 1000 },
-    { month: 'Feb', value: 1500 },
-    { month: 'Mar', value: 1500 },
-    { month: 'Apr', value: 2000 },
-    { month: 'May', value: 2000 },
-    { month: 'Jun', value: 2000 },
-    { month: 'Jul', value: 3200 },
-    { month: 'Aug', value: 6000 },
-    { month: 'Sep', value: 5000 },
-    { month: 'Oct', value: 4000 },
-    { month: 'Nov', value: 5000 },
-    { month: 'Dec', value: 4000 },
-  ];
+  const lossData = dateData;
 
   const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-  const width = 600 - margin.left - margin.right;
-  const height = 400 - margin.top - margin.bottom;
+  const width = containerWidth - margin.left - margin.right;
+  const height = containerHeight - margin.top - margin.bottom;
+
+  const circleOffset = 2; // Adjust the offset as needed
 
   const xScale = d3
     .scaleBand()
-    .domain(profitData.map((d) => d.month))
+    .domain(profitData.map((d) => d.key))
     .range([0, width])
     .padding(0.1);
 
   const yScale = d3
     .scaleLinear()
-    .domain([0, d3.max([...profitData, ...lossData], (d) => d.value)]) // Y-axis range
+    .domain([0, d3.max([...profitData, ...lossData], (d) => d.value)])
     .range([height, 0]);
+
+  const yAxis = d3
+    .axisLeft(yScale)
+    .tickSize(0)
+    .tickFormat((d) => `${d / 1000}k`);
 
   const profitLine = d3
     .line()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y((d) => yScale(d.value))
     .curve(d3.curveCardinal);
 
   const lossLine = d3
     .line()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y((d) => yScale(d.value))
     .curve(d3.curveCardinal);
 
   const area = d3
     .area()
-    .x((d) => xScale(d.month) + xScale.bandwidth() / 2)
+    .x((d) => xScale(d.key) + xScale.bandwidth() / 2)
     .y0(yScale(0))
     .y1((d) => yScale(d.value))
     .curve(d3.curveCardinal);
+
+  // Remove existing SVG
+  d3.selectAll('#topup-chart-container svg').remove();
+  console.log('Existing SVG removed');
 
   const svg = d3
     .select('#topup-chart-container')
@@ -384,17 +502,40 @@ export function createTopupsCommissionChart() {
   svg
     .append('g')
     .attr('transform', `translate(0,${height})`)
-    .call(d3.axisBottom(xScale));
+    .call(d3.axisBottom(xScale).tickSize(0))
+    .select('.domain')
+    .remove();
 
   // Y-axis
-  svg.append('g').call(d3.axisLeft(yScale));
+  svg.append('g').call(yAxis).select('.domain').remove();
+
+  // Gradient definition
+  const profitGradient = svg
+    .append('defs')
+    .append('linearGradient')
+    .attr('id', 'profitGradient')
+    .attr('x1', '0%')
+    .attr('y1', '0%')
+    .attr('x2', '0%')
+    .attr('y2', '100%');
+
+  profitGradient
+    .append('stop')
+    .attr('offset', '10%')
+    .attr('style', 'stop-color:#83BF94;stop-opacity:1');
+
+  profitGradient
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('style', 'stop-color:#83BF94;stop-opacity:0');
 
   // Profit Area
   svg
     .append('path')
     .datum(profitData)
-    .attr('fill', 'rgba(0, 255, 0, 0.2)') // Green shade
-    .attr('d', area);
+    .attr('fill', 'url(#profitGradient)') // Green shade
+    .attr('d', area)
+    .style('pointer-events', 'none');
 
   // Profit Line
   svg
@@ -403,14 +544,36 @@ export function createTopupsCommissionChart() {
     .attr('fill', 'none')
     .attr('stroke', 'green')
     .attr('stroke-width', 2)
-    .attr('d', profitLine);
+    .attr('d', profitLine)
+    .style('pointer-events', 'none');
+
+  // Gradient definition
+  const lossGradient = svg
+    .append('defs')
+    .append('linearGradient')
+    .attr('id', 'lossGradient')
+    .attr('x1', '0%')
+    .attr('y1', '0%')
+    .attr('x2', '0%')
+    .attr('y2', '100%');
+
+  lossGradient
+    .append('stop')
+    .attr('offset', '10%')
+    .attr('style', 'stop-color:#C53A3A;stop-opacity:1');
+
+  lossGradient
+    .append('stop')
+    .attr('offset', '100%')
+    .attr('style', 'stop-color:#C53A3A;stop-opacity:0');
 
   // Loss Area
   svg
     .append('path')
     .datum(lossData)
-    .attr('fill', 'rgba(255, 0, 0, 0.2)') // Red shade
-    .attr('d', area);
+    .attr('fill', 'url(#lossGradient)') // Red shade
+    .attr('d', area)
+    .style('pointer-events', 'none');
 
   // Loss Line
   svg
@@ -419,6 +582,104 @@ export function createTopupsCommissionChart() {
     .attr('fill', 'none')
     .attr('stroke', 'red')
     .attr('stroke-width', 2)
-    .attr('d', lossLine);
-  console.log('here i am ');
+    .attr('d', lossLine)
+    .style('pointer-events', 'none');
+
+  const defaultProfitMonth = profitData[0].key;
+  const defaultLossMonth = lossData[0].key;
+
+  let highlightedProfitData = profitData.find(
+    (d) => d.key === defaultProfitMonth
+  );
+
+  updateProfitDataDiv(highlightedProfitData);
+
+  let highlightedLossData = lossData.find((d) => d.key === defaultLossMonth);
+
+  updateLossDataDiv(highlightedLossData);
+
+  const profitCircles = svg
+    .selectAll('.profit-circle')
+    .data(profitData)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => xScale(d.key) + xScale.bandwidth() / 2 - circleOffset)
+    .attr('cy', (d) => yScale(d.value))
+    .attr('r', 8) // Adjust the radius as needed
+    .attr('fill', 'green') // Change the color as needed
+    .attr('class', 'profit-circle')
+    .style('opacity', (d) => (d.key === defaultProfitMonth ? 1 : 0))
+    .style('pointer-events', 'all')
+    .on('click', function (event, d) {
+      highlightedProfitData = d;
+      updateProfitDataDiv(d);
+
+      // Highlight the selected circle
+      profitCircles.style('opacity', (dataPoint) =>
+        dataPoint.key === d.key ? 1 : 0
+      );
+    })
+    .on('mouseover', function () {
+      this.parentNode.appendChild(this);
+    });
+
+  const lossCircles = svg
+    .selectAll('.loss-circle')
+    .data(lossData)
+    .enter()
+    .append('circle')
+    .attr('cx', (d) => xScale(d.key) + xScale.bandwidth() / 2 + circleOffset)
+    .attr('cy', (d) => yScale(d.value))
+    .attr('r', 8) // Adjust the radius as needed
+    .attr('fill', 'red') // Change the color as needed
+    .attr('class', 'loss-circle')
+    .style('opacity', (d) => (d.key === defaultLossMonth ? 1 : 0))
+    .style('pointer-events', 'all')
+    .on('click', function (event, d) {
+      highlightedLossData = d;
+      updateLossDataDiv(d);
+
+      // Highlight the selected circle
+      lossCircles.style('opacity', (dataPoint) =>
+        dataPoint.key === d.key ? 1 : 0
+      );
+    })
+    .on('mouseover', function () {
+      this.parentNode.appendChild(this);
+    });
+
+  // profitCircles.on('click', function (event, d) {
+  //   highlightedProfitData = d;
+  //   updateProfitDataDiv(d);
+
+  //   this.parentNode.appendChild(this);
+
+  //   // Highlight the selected circle
+  //   profitCircles.style('opacity', (dataPoint) =>
+  //     dataPoint.month === d.month ? 1 : 0
+  //   );
+  // });
+
+  // // Add click event listener to loss circles
+  // lossCircles.on('click', function (event, d) {
+  //   highlightedLossData = d;
+  //   updateLossDataDiv(d);
+
+  //   this.parentNode.appendChild(this);
+
+  //   // Highlight the selected circle
+  //   lossCircles.style('opacity', (dataPoint) =>
+  //     dataPoint.month === d.month ? 1 : 0
+  //   );
+  // });
+
+  function updateProfitDataDiv(data) {
+    // Update the content of the #profit div
+    d3.select('#topups ').text(`${data.value}`);
+  }
+
+  function updateLossDataDiv(data) {
+    // Update the content of the #loss div
+    d3.select('#commission').text(`${data.value}`);
+  }
 }
