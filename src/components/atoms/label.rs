@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 #[derive(Clone, PartialEq)]
 pub enum LabelStyle {
-    Primary,
+    // Primary,
     Secondary,
 }
 
@@ -23,7 +23,7 @@ impl LabelProps {
             .collect();
 
         match self.label_style {
-            Some(LabelStyle::Primary) => primary.to_string(),
+            // Some(LabelStyle::Primary) => primary.to_string(),
             Some(LabelStyle::Secondary) => secondary.to_string(),
             _ => primary.to_string(),
         }

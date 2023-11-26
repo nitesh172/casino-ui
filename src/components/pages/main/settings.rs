@@ -64,8 +64,8 @@ pub fn settings() -> Html {
             status: user_cloned.status.clone(),
         };
 
-        Callback::from(move |event: SubmitEvent| {
-            let user = (updated_user).clone();
+        Callback::from(move |_event: SubmitEvent| {
+            let _user = (updated_user).clone();
             spawn_local(async move {
                 // let response = api_update_user(user).await;
 
@@ -253,7 +253,7 @@ struct EditModalProps {
 
 #[function_component(EditModal)]
 fn edit_modal(props: &EditModalProps) -> Html {
-    let file_handle = {
+    let _file_handle = {
         Callback::from(|event: Event| {
             let files = event
                 .target()

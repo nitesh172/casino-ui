@@ -1,17 +1,9 @@
-use chrono::format::StrftimeItems;
-use chrono::Date;
-use chrono::DateTime;
-use chrono::Datelike;
 use chrono::Duration;
 use chrono::NaiveDate;
-use chrono::TimeZone;
 use chrono::Utc;
 use gloo_console::log;
 use serde::{Deserialize, Serialize};
-use serde_json::to_value;
 use wasm_bindgen::JsCast;
-use wasm_bindgen::JsValue;
-use web_sys::js_sys::Atomics::is_lock_free;
 use web_sys::window;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -221,7 +213,7 @@ fn total_users_card() -> Html {
     };
 
     fn render_chart(start_date: String, end_date: String) {
-        let dayData = [
+        let day_data = [
             DateData {
                 key: "10".to_string(),
                 value: 1000,
@@ -268,7 +260,7 @@ fn total_users_card() -> Html {
             },
         ];
 
-        let monthData = [
+        let month_data = [
             DateData {
                 key: "Jan".to_string(),
                 value: 3000,
@@ -319,7 +311,7 @@ fn total_users_card() -> Html {
             },
         ];
 
-        let yearData = [
+        let year_data = [
             DateData {
                 key: "2020".to_string(),
                 value: 1000,
@@ -354,13 +346,13 @@ fn total_users_card() -> Html {
 
         if day_diff <= 31 {
             log!("here. days..");
-            data = dayData.to_vec();
+            data = day_data.to_vec();
         } else if day_diff <= 365 {
             log!("here.. month.");
-            data = monthData.to_vec();
+            data = month_data.to_vec();
         } else {
             log!("here. year..");
-            data = yearData.to_vec();
+            data = year_data.to_vec();
         }
 
         let data = serde_wasm_bindgen::to_value(&data).unwrap();
@@ -472,7 +464,7 @@ fn total_volume_card() -> Html {
     };
 
     fn render_chart(start_date: String, end_date: String) {
-        let dayData = [
+        let day_data = [
             DateData {
                 key: "10".to_string(),
                 value: 1000,
@@ -519,7 +511,7 @@ fn total_volume_card() -> Html {
             },
         ];
 
-        let monthData = [
+        let month_data = [
             DateData {
                 key: "Jan".to_string(),
                 value: 3000,
@@ -570,7 +562,7 @@ fn total_volume_card() -> Html {
             },
         ];
 
-        let yearData = [
+        let year_data = [
             DateData {
                 key: "2020".to_string(),
                 value: 1000,
@@ -607,13 +599,13 @@ fn total_volume_card() -> Html {
 
         if day_diff <= 31 {
             log!("here. days..");
-            data = dayData.to_vec();
+            data = day_data.to_vec();
         } else if day_diff <= 365 {
             log!("here.. month.");
-            data = monthData.to_vec();
+            data = month_data.to_vec();
         } else {
             log!("here. year..");
-            data = yearData.to_vec();
+            data = year_data.to_vec();
         }
 
         let data = serde_wasm_bindgen::to_value(&data).unwrap();
@@ -791,7 +783,7 @@ fn topups_commision_card() -> Html {
     };
 
     fn render_chart(start_date: String, end_date: String) {
-        let dayData = [
+        let day_data = [
             DateData {
                 key: "10".to_string(),
                 value: 1000,
@@ -838,7 +830,7 @@ fn topups_commision_card() -> Html {
             },
         ];
 
-        let monthData = [
+        let month_data = [
             DateData {
                 key: "Jan".to_string(),
                 value: 3000,
@@ -889,7 +881,7 @@ fn topups_commision_card() -> Html {
             },
         ];
 
-        let yearData = [
+        let year_data = [
             DateData {
                 key: "2020".to_string(),
                 value: 1000,
@@ -924,13 +916,13 @@ fn topups_commision_card() -> Html {
 
         if day_diff <= 31 {
             log!("here. days..");
-            data = dayData.to_vec();
+            data = day_data.to_vec();
         } else if day_diff <= 365 {
             log!("here.. month.");
-            data = monthData.to_vec();
+            data = month_data.to_vec();
         } else {
             log!("here. year..");
-            data = yearData.to_vec();
+            data = year_data.to_vec();
         }
 
         let data = serde_wasm_bindgen::to_value(&data).unwrap();

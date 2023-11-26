@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::{render_svg, utils::render_svg};
+use crate::render_svg;
 
 #[derive(PartialEq, Properties)]
 pub struct PaginatorProps {
@@ -51,7 +51,7 @@ pub struct PaginationProps {
 }
 
 #[function_component(Paginator)]
-pub fn paginator(props: &PaginatorProps) -> Html {
+pub fn paginator(_props: &PaginatorProps) -> Html {
     let main_text = format!("Showing {} - {} of {} results", 1, 10, 20);
     let page_numbers = vec![1, 2, 3, 4, 5];
 

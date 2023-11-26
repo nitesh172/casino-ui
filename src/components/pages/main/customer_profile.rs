@@ -8,7 +8,7 @@ pub struct CustomerProfileProps {
 }
 
 #[function_component(CustomerProfile)]
-pub fn customer_profile(props: &CustomerProfileProps) -> Html {
+pub fn customer_profile(_props: &CustomerProfileProps) -> Html {
     html! {
         <>
             <div class="bg-grey-shade-13  py-4">

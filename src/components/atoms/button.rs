@@ -3,17 +3,17 @@ use yew::prelude::*;
 #[derive(Clone, PartialEq)]
 pub enum ButtonType {
     Submit,
-    Button,
+    // Button,
 }
 
 #[derive(Clone, PartialEq)]
 pub enum ButtonStyle {
     PrimaryFill,
-    PrimaryOutlined,
-    PrimaryLink,
-    SecondaryFill,
-    SecondaryOutlined,
-    SecondaryLink,
+    // PrimaryOutlined,
+    // PrimaryLink,
+    // SecondaryFill,
+    // SecondaryOutlined,
+    // SecondaryLink,
 }
 
 #[derive(Properties, PartialEq, Clone)]
@@ -47,18 +47,18 @@ impl ButtonProps {
             " text-16 font-sans font-400 text-grey-shade-14 leading-20 bg-primary"
                 .split_whitespace()
                 .collect();
-        let secondary_filled: Classes =
-            "text-16 font-sans font-400 text-grey-shade-14 leading-20 bg-grey-shade-0 hover:shadow-lg hover:shadow-grey-shade-0/15 "
-                .split_whitespace()
-                .collect();
+        // let secondary_filled: Classes =
+        //     "text-16 font-sans font-400 text-grey-shade-14 leading-20 bg-grey-shade-0 hover:shadow-lg hover:shadow-grey-shade-0/15 "
+        //         .split_whitespace()
+        //         .collect();
 
         match self.button_style {
             Some(ButtonStyle::PrimaryFill) => {
                 format!("{} {}", default_style, primary_filled.to_string())
             }
-            Some(ButtonStyle::SecondaryFill) => {
-                format!("{} {}", default_style, secondary_filled.to_string())
-            }
+            // Some(ButtonStyle::SecondaryFill) => {
+            //     format!("{} {}", default_style, secondary_filled.to_string())
+            // }
             _ => format!("{} {}", default_style, primary_filled.to_string()),
         }
     }

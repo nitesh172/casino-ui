@@ -1,5 +1,4 @@
 use crate::{
-    apis::user::api_login,
     components::{
         atoms::{
             button::{Button, ButtonStyle, ButtonType},
@@ -74,8 +73,8 @@ pub fn login() -> Html {
                 return;
             }
 
-            let email: String = email.clone();
-            let password: String = password.clone();
+            let _email: String = email.clone();
+            let _password: String = password.clone();
             let store_dispatch = store_dispatch.clone();
 
             spawn_local(async move {
