@@ -1,15 +1,6 @@
 use yew::prelude::*;
 
-use crate::{
-    components::{
-        atoms::{
-            label::{Label, LabelStyle},
-            text_input::TextInput,
-        },
-        organisms::paginator::Paginator,
-    },
-    render_svg,
-};
+use crate::{ components::organisms::paginator::Paginator, render_svg };
 
 #[function_component(Games)]
 pub fn games() -> Html {

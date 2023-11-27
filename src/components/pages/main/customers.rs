@@ -1,4 +1,3 @@
-use gloo_console::log;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -10,11 +9,11 @@ use crate::{
 pub fn customers() -> Html {
     let history = use_navigator().unwrap();
 
-    fn handle_row_click(id: i32, history: Navigator) {
+    fn handle_row_click(_id: i32, history: Navigator) {
         history.push(&MainRoute::CustomerProfile {
             id: "12".to_owned(),
         })
-    };
+    }
 
     html!(
         <>

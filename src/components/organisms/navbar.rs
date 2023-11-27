@@ -5,10 +5,8 @@ use crate::{
         Teams, Tickets,
     },
 };
-use gloo_console::log;
-// use crate::routes::main_routes::MainRoute::Overview;
 use yew::prelude::*;
-use yew_router::{prelude::*, router::RouterProps};
+use yew_router::{prelude::*};
 
 #[function_component(Navbar)]
 pub fn navbar() -> Html {

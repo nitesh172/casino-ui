@@ -53,7 +53,7 @@ impl Default for CurrentUser {
     }
 }
 
-pub async fn api_login(email: String, password: String) -> Result<LoginResponse, Error> {
+pub async fn _api_login(email: String, password: String) -> Result<LoginResponse, Error> {
     let response = Request::post(&format!("{}api/auth/login", APP_HOST))
         .header("Content-Type", "application/json")
         .body(

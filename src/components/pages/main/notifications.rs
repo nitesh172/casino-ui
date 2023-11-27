@@ -2,7 +2,6 @@ use std::ops::Deref;
 use chrono::prelude::*;
 
 use gloo_console::log;
-use serde_json::json;
 use crate::{
     components::organisms::paginator::Paginator,
     apis::notification::{
@@ -84,7 +83,7 @@ pub fn notifications() -> Html {
         })
     };
 
-    let update_pagination = {
+    let _update_pagination = {
         let pagination = pagination.clone();
         Callback::from(move |option: PaginationFucProps| {
             let mut data = pagination.deref().clone();
@@ -347,7 +346,7 @@ fn edit_modal(props: &ModalProps) -> Html {
         let on_ok = props.on_ok_response.clone();
         let on_handle_notifications = props.fetch_handle_notifications.clone();
         let notification_id = props.notification_id.clone();
-        Callback::from(move |event: MouseEvent| {
+        Callback::from(move |_event: MouseEvent| {
             let notification: Notification = st.clone();
             let on_ok = on_ok.clone();
             let on_handle_notifications = on_handle_notifications.clone();
@@ -357,7 +356,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                     let response = update_notification(notification, notification_id).await;
 
                     match response {
-                        Ok(response) => {
+                        Ok(_response) => {
                             on_ok.emit(());
                             on_handle_notifications.emit(());
                         }
@@ -367,7 +366,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                     let response = create_notification(notification).await;
 
                     match response {
-                        Ok(response) => {
+                        Ok(_response) => {
                             on_ok.emit(());
                             on_handle_notifications.emit(());
                         }
@@ -504,7 +503,7 @@ fn delete_modal(props: &DeleteModalProps) -> Html {
         let on_ok = props.on_ok_response.clone();
         let on_handle_notifications = props.fetch_handle_notifications.clone();
         let notification_id = props.notification_id.clone();
-        Callback::from(move |event: MouseEvent| {
+        Callback::from(move |_event: MouseEvent| {
             let on_ok = on_ok.clone();
             let on_handle_notifications = on_handle_notifications.clone();
             let notification_id = notification_id.clone();
@@ -513,7 +512,7 @@ fn delete_modal(props: &DeleteModalProps) -> Html {
                     let response = delete_notification(notification_id).await;
 
                     match response {
-                        Ok(response) => {
+                        Ok(_response) => {
                             log!("fff");
                             on_ok.emit(());
                             on_handle_notifications.emit(());

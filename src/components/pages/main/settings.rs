@@ -1,5 +1,5 @@
 use crate::{
-    apis::user::{api_me, CreateUser, CurrentUser},
+    apis::user::{api_me, CurrentUser},
     render_svg,
     stores::auth_store::AuthStore,
 };
@@ -55,17 +55,17 @@ pub fn settings() -> Html {
     };
 
     let update_user = {
-        let user_cloned = (*user).clone();
+        // let user_cloned = (*user).clone();
 
-        let updated_user = CreateUser {
-            name: user_cloned.name.clone().unwrap_or_else(|| String::new()),
-            email_address: user_cloned.email_address.clone(),
-            roles: user_cloned.roles.clone(),
-            status: user_cloned.status.clone(),
-        };
+        // let updated_user = CreateUser {
+        //     name: user_cloned.name.clone().unwrap_or_else(|| String::new()),
+        //     email_address: user_cloned.email_address.clone(),
+        //     roles: user_cloned.roles.clone(),
+        //     status: user_cloned.status.clone(),
+        // };
 
-        Callback::from(move |event: SubmitEvent| {
-            let user = (updated_user).clone();
+        Callback::from(move |_event: SubmitEvent| {
+            // let user = (updated_user).clone();
             spawn_local(async move {
                 // let response = api_update_user(user).await;
 
@@ -253,7 +253,7 @@ struct EditModalProps {
 
 #[function_component(EditModal)]
 fn edit_modal(props: &EditModalProps) -> Html {
-    let file_handle = {
+    let _file_handle = {
         Callback::from(|event: Event| {
             let files = event
                 .target()

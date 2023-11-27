@@ -1,7 +1,6 @@
 use yew::prelude::*;
 
-use crate::{ render_svg, utils::render_svg };
-use gloo_console::log;
+use crate::{ render_svg };
 
 #[derive(PartialEq, Properties)]
 pub struct PaginatorProps {

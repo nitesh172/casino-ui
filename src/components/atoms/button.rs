@@ -1,11 +1,13 @@
 use yew::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Clone, PartialEq)]
 pub enum ButtonType {
     Submit,
     Button,
 }
 
+#[allow(dead_code)]
 #[derive(Clone, PartialEq)]
 pub enum ButtonStyle {
     PrimaryFill,

@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::{components::organisms::paginator::Paginator, render_svg};
+use crate::render_svg;
 
 #[derive(Properties, PartialEq, Clone)]
 pub struct CustomerProfileProps {
@@ -8,7 +8,7 @@ pub struct CustomerProfileProps {
 }
 
 #[function_component(CustomerProfile)]
-pub fn customer_profile(props: &CustomerProfileProps) -> Html {
+pub fn customer_profile(_props: &CustomerProfileProps) -> Html {
     html! {
         <>
             <div class="bg-grey-shade-13  py-4">
