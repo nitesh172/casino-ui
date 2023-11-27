@@ -123,7 +123,7 @@ pub fn participants() -> Html {
                             </select>
                         </div>
                     </div>
-                    <Paginator  />
+                    <Paginator per_page={10} total_pages={1} total_items={5} current_page={1}  />
                     <table class="w-full table-auto mt-3 hidden lg:inline-table">
                         <thead>
                             <tr class="">
@@ -260,7 +260,7 @@ pub fn participants() -> Html {
                             </select>
                         </div>
                     </div>
-                    <Paginator  />
+                    <Paginator per_page={10} total_pages={1} total_items={5} current_page={1}  />
                     <table class="w-full table-auto mt-3 hidden lg:inline-table">
                         <thead>
                             <tr class="">

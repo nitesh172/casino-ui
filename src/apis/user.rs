@@ -1,5 +1,4 @@
 use super::APP_HOST;
-use gloo_console::log;
 use reqwasm::{http::Request, Error};
 use serde::{Deserialize, Serialize};
 use serde_json::json;

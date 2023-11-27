@@ -61,7 +61,7 @@ pub fn integrations() -> Html {
                             </button>
                         </div>
                     </div>
-                    <Paginator />
+                    <Paginator per_page={10} total_pages={1} total_items={5} current_page={1} />
                 </div>
             </div>
             <div class="container mx-auto  py-4  grid gap-3 md:grid-cols-4">

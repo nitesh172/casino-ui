@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = "0.4.31"
 dotenv = "0.15.0"
 gloo-console = "0.3.0"
 iconify = "0.2.5"

@@ -60,7 +60,7 @@ pub fn games() -> Html {
                         </button>
                      </div>
                 </div>
-                <Paginator  />
+                <Paginator per_page={10} total_pages={1} total_items={5} current_page={1}  />
             </div>
         </div>
         <div class="relative">
