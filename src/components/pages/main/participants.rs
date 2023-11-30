@@ -1,7 +1,7 @@
 use yew::prelude::*;
-
+use std::ops::Deref;
 use crate::{
-    components::organisms::paginator::Paginator,
+    components::organisms::paginator::{PaginationDataProps, PaginationFucProps, Paginator},
     render_svg,
 };
 
@@ -58,12 +58,47 @@ pub fn participants() -> Html {
         }
     ];
 
+    let initial = use_state(|| true);
+    let pagination = use_state(|| PaginationDataProps {
+        per_page: 10,
+        total_items: 0,
+        total_pages: 0,
+        current_page: 1,
+    });
     let is_open = use_state(|| false);
 
     let modal_handle = {
         let is_open = is_open.clone();
         Callback::from(move |_| {
             is_open.set(!*is_open);
+        })
+    };
+
+    let update_pagination = {
+        let pagination = pagination.clone();
+        let cloned_initial = initial.clone();
+        Callback::from(move |option: PaginationFucProps| {
+            cloned_initial.set(true);
+            let mut data = pagination.deref().clone();
+            let name = option.name;
+            let value = option.value;
+
+            match name.as_str() {
+                "current_page" => {
+                    data.current_page = value;
+                }
+                "per_page" => {
+                    data.per_page = value;
+                }
+                "total_items" => {
+                    data.total_items = value;
+                }
+                "total_pages" => {
+                    data.total_pages = value;
+                }
+                _ => (),
+            }
+            pagination.set(data);
         })
     };
 
@@ -123,8 +158,10 @@ pub fn participants() -> Html {
                             </select>
                         </div>
                     </div>
-                    <Paginator per_page={10} total_pages={1} total_items={5} current_page={1}  />
-                    <table class="w-full table-auto mt-3 hidden lg:inline-table">
+                    <ContextProvider<PaginationDataProps> context={(*pagination).clone()}>
+                        <Paginator update_pagination={update_pagination.clone()} />
+                    </ContextProvider<PaginationDataProps>>
+                    <table class="w-full table-auto mt-3 hidden xl:inline-table">
                         <thead>
                             <tr class="">
                                 {
@@ -183,10 +220,10 @@ pub fn participants() -> Html {
                             }
                         </tbody>
                     </table>
-                    <div class="flex lg:hidden flex-col gap-4 mt-4">
+                    <div class="grid md:grid-cols-2 lg:grid-cols-2 xl:hidden gap-4 mt-4">
                         {
                             users.clone().iter().map(|user| {
-                                html!{<div class="border p-4 flex flex-col gap-2.5">
+                                html!{<div class="border p-4 flex flex-col rounded-md gap-2.5">
                                     <div class="flex flex-row justify-between items-center">
                                         <div class="flex flex-col gap-2.5">
                                             <div class="text-14 font-medium text-grey-shade-1">{user.clone().id}</div>
@@ -260,8 +297,10 @@ pub fn participants() -> Html {
                             </select>
                         </div>
                     </div>
-                    <Paginator per_page={10} total_pages={1} total_items={5} current_page={1}  />
-                    <table class="w-full table-auto mt-3 hidden lg:inline-table">
+                    <ContextProvider<PaginationDataProps> context={(*pagination).clone()}>
+                        <Paginator update_pagination={update_pagination.clone()} />
+                    </ContextProvider<PaginationDataProps>>
+                    <table class="w-full table-auto mt-3 hidden xl:inline-table">
                         <thead>
                             <tr class="">
                                 {
@@ -320,10 +359,10 @@ pub fn participants() -> Html {
                             }
                         </tbody>
                     </table>
-                    <div class="flex lg:hidden flex-col gap-4 mt-4">
+                    <div class="grid md:grid-cols-2 lg:grid-cols-2 xl:hidden gap-4 mt-4">
                         {
                             users.clone().iter().map(|user| {
-                                html!{<div class="border p-4 flex flex-col gap-2.5">
+                                html!{<div class="border p-4 flex flex-col rounded-md gap-2.5">
                                     <div class="flex flex-row justify-between items-center">
                                         <div class="flex flex-col gap-2.5">
                                             <div class="text-14 font-medium text-grey-shade-1">{user.clone().id}</div>

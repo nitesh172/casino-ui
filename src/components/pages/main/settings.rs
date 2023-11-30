@@ -90,7 +90,7 @@ pub fn settings() -> Html {
     html!(
         <>
         <div class="bg-gradient-to-b from-grey-shade-13 from-20% to-grey-shade-14 to-10% px-2 md:px-0 py-8 ">
-            <div class="container mx-auto space-y-6">
+            <div class="container mx-auto space-y-6 px-8">
                 // Header
                 <div class="flex items-center justify-between">
                     <p class="flex items-center text-24 font-600 leading-32">

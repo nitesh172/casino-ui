@@ -1,9 +1,11 @@
 use yew::prelude::*;
 
 use crate::{
-    components::organisms::paginator::Paginator,
+    components::organisms::paginator::{PaginationDataProps, PaginationFucProps, Paginator},
     render_svg,
 };
+use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
+use std::ops::Deref;
 
 #[function_component(Teams)]
 pub fn teams() -> Html {
@@ -33,6 +35,42 @@ pub fn teams() -> Html {
     ];
 
     let is_open = use_state(|| false);
+    let search_text = use_state(|| String::default());
+    let initial = use_state(|| true);
+    let pagination = use_state(|| PaginationDataProps {
+        per_page: 10,
+        total_items: 0,
+        total_pages: 0,
+        current_page: 1,
+    });
+
+    let update_pagination = {
+        let pagination = pagination.clone();
+        let cloned_initial = initial.clone();
+        Callback::from(move |option: PaginationFucProps| {
+            cloned_initial.set(true);
+            let mut data = pagination.deref().clone();
+            let name = option.name;
+            let value = option.value;
+
+            match name.as_str() {
+                "current_page" => {
+                    data.current_page = value;
+                }
+                "per_page" => {
+                    data.per_page = value;
+                }
+                "total_items" => {
+                    data.total_items = value;
+                }
+                "total_pages" => {
+                    data.total_pages = value;
+                }
+                _ => (),
+            }
+            pagination.set(data);
+        })
+    };
 
     let modal_handle = {
         let is_open = is_open.clone();
@@ -41,12 +79,24 @@ pub fn teams() -> Html {
         })
     };
 
+    let cloned_search_text = search_text.clone();
+    let cloned_initial = initial.clone();
+    let search_text_changed = Callback::from(move |event: Event| {
+        let value = event
+            .target()
+            .unwrap()
+            .unchecked_into::<HtmlInputElement>()
+            .value();
+        cloned_initial.set(true);
+        cloned_search_text.set(value);
+    });
+
     html!(
     <>
         <div class="bg-grey-shade-13 py-4 px-8">
             <div class="container mx-auto md:w-auto space-y-4" >
-                <div class="flex md:justify-between items-start md:items-center flex-col gap-6 lg:gap-0 md:flex-row">
-                    <div class="flex flex-row justify-between lg:justify-normal gap-2 items-center w-full lg:w-auto">
+                <div class="flex md:justify-between md:items-center flex-col gap-6 md:flex-row">
+                    <div class="flex flex-row justify-between md:justify-normal gap-2 items-center w-full md:w-auto">
                         <h1>{"Teams"}</h1>
                         <div class="flex items-center rounded border justify-start bg-white border-grey-shade-11 px-2 w-40">
                             <span>{html! { render_svg!("mynaui:search",  color="#000000", width="18px")}} </span>
@@ -55,13 +105,14 @@ pub fn teams() -> Html {
                                 autocomplete="off"
                                 name="search"
                                 placeholder={"search"}
+                                onchange={search_text_changed.clone()}
                                 class="px-2.5 py-2 h-7 bg-white placeholder:text-grey-shade-6 text-14  leading-20 font-300 font-sans outline-none pr-2 pl-2 w-full "
                             />
                         </div>
                     </div>
-                    <div class="flex flex-row items-center w-full lg:w-auto gap-2">
+                    <div class="flex flex-row items-center w-full md:w-auto gap-2">
                         <button
-                            class="bg-grey-shade-0 flex flex-1 lg:flex-none items-center justify-center lg:justify-normal rounded p-2 text-grey-shade-14 text-12 font-400 "
+                            class="bg-grey-shade-0 flex flex-1 md:flex-none items-center justify-center md:justify-normal rounded p-2 text-grey-shade-14 text-12 font-400 "
                         >
                             <span class="pr-2">
                             {html! { render_svg!("majesticons:file", color="#ffff",width="14px")}}
@@ -70,7 +121,7 @@ pub fn teams() -> Html {
                         </button>
                         <button
                             onclick={modal_handle.clone()}
-                            class="bg-primary flex flex-1 lg:flex-none items-center rounded justify-center lg:justify-normal p-2 text-grey-shade-14 text-12 font-400"
+                            class="bg-primary flex flex-1 md:flex-none items-center rounded justify-center md:justify-normal p-2 text-grey-shade-14 text-12 font-400"
                         >
                             <span class="pr-2">
                             {html! { render_svg!("lets-icons:add-round", color="#ffff",width="14px")}}
@@ -79,13 +130,15 @@ pub fn teams() -> Html {
                         </button>
                      </div>
                 </div>
-                <Paginator per_page={10} total_pages={1} total_items={5} current_page={1}  />
+                <ContextProvider<PaginationDataProps> context={(*pagination).clone()}>
+                    <Paginator update_pagination={update_pagination.clone()} />
+                </ContextProvider<PaginationDataProps>>
             </div>
         </div>
         <div class="relative px-8">
-            <div class="absolute hidden lg:block -z-10 top-0 left-0 h-[45px] w-full bg-grey-shade-13"></div>
+            <div class="absolute hidden xl:block -z-10 top-0 left-0 h-[45px] w-full bg-grey-shade-13"></div>
             <div class="container mx-auto">
-                <table class="w-full table-auto hidden lg:inline-table">
+                <table class="w-full table-auto hidden xl:inline-table">
                     <thead class="bg-grey-shade-13">
                         <tr class="">
                             {
@@ -129,14 +182,14 @@ pub fn teams() -> Html {
                         }
                     </tbody>
                 </table>
-                <div class="flex lg:hidden flex-col gap-4 mt-8">
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:hidden gap-4 mt-4">
                     {
                         users.clone().iter().map(|user| {
                             html!{
                                 <div class="rounded-xl border p-4 flex flex-col gap-2.5">
                                     <div class="flex flex-row justify-between">
                                         <div class="flex flex-col gap-2.5">
-                                            <div class="rounded-full py-1 px-2 flex-row gap-1 bg-grey-shade-11">
+                                            <div class="rounded-full w-fit py-1 px-2 flex-row gap-1 bg-grey-shade-11">
                                                 {user.clone().role}
                                             </div>
                                             <div class="flex flex-col">

@@ -1,7 +1,8 @@
 use super::APP_HOST;
+use crate::utils::format_dates::format_date_for_backend;
 use reqwasm::{ http::Request, Error };
 use serde::{ Deserialize, Serialize };
-use serde_json::{ json };
+use serde_json::json;
 use yew::Properties;
 
 #[derive(Default, Serialize, Deserialize, Clone, Properties, PartialEq)]
@@ -42,11 +43,6 @@ pub struct NotificationsResponse {
 #[derive(Serialize, Deserialize, Clone, Properties, PartialEq)]
 pub struct NotificationsDeleteResponse {
     pub message: String
-}
-
-pub fn format_date_for_backend(input_date: String) -> String {
-    let formatted_date = format!("{}:00Z", input_date);
-    formatted_date
 }
 
 pub async fn create_notification(
@@ -92,8 +88,8 @@ pub async fn update_notification(
     response.json::<NotificationResponse>().await
 }
 
-pub async fn fetch_notifications() -> Result<NotificationsResponse, Error> {
-    let response = Request::get(&format!("{}api/notifications", APP_HOST))
+pub async fn fetch_notifications(per_page: i32, search_text: String) -> Result<NotificationsResponse, Error> {
+    let response = Request::get(&format!("{}api/notifications?limit={}&name={}", APP_HOST, per_page, search_text))
         .header("Content-Type", "application/json")
         .send().await?;
 
