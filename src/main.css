@@ -72,10 +72,11 @@ toggle-switch {
 .toggle-switch input {
   position: relative;
   display: inline-block;
-  width: 40px; /* Adjust the width of the switch */
+  width: 39px; /* Adjust the width of the switch */
   height: 20px; /* Adjust the height of the switch */
   appearance: none;
   background-color: #ccc;
+  padding: 2px 1px;
   border-radius: 10px;
   outline: none;
   cursor: pointer;
@@ -88,8 +89,8 @@ toggle-switch {
 .toggle-switch input::before {
   content: '';
   position: absolute;
-  width: 18px; /* Adjust the width of the switch handle */
-  height: 18px; /* Adjust the height of the switch handle */
+  width: 16px; /* Adjust the width of the switch handle */
+  height: 16px; /* Adjust the height of the switch handle */
   background-color: #fff;
   border-radius: 50%;
   transition: transform 0.3s;

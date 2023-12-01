@@ -6,7 +6,7 @@ use crate::{
     },
 };
 use yew::prelude::*;
-use yew_router::{prelude::*};
+use yew_router::prelude::*;
 
 #[function_component(Navbar)]
 pub fn navbar() -> Html {
@@ -28,7 +28,7 @@ pub fn navbar() -> Html {
 
     html! {
         <div class="bg-black">
-            <nav class="flex items-center justify-between py-6 text-grey-shade-14 px-2">
+            <nav class="flex items-center justify-between py-6 text-grey-shade-14 px-5">
                 <div>
                     <img src="img/logo.svg" class="h-34 md:h-42" />
                 </div>
