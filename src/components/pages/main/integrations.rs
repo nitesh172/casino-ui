@@ -9,16 +9,18 @@ use crate::{
             text_input::TextInput,
         },
         organisms::{
-            export_button::{ExportButton, download_csv_file},
+            export_button::{download_csv_file, ExportButton},
             paginator::{PaginationDataProps, PaginationFucProps, Paginator},
         },
     },
     render_svg,
+    stores::auth_store::AuthStore,
 };
 use gloo_console::log;
 use std::ops::Deref;
 use web_sys::{wasm_bindgen::JsCast, HtmlElement, HtmlInputElement};
 use yew::{platform::spawn_local, prelude::*};
+use yewdux::prelude::*;
 
 #[function_component(Integrations)]
 pub fn integrations() -> Html {
@@ -34,6 +36,10 @@ pub fn integrations() -> Html {
         current_page: 1,
     });
     let integration_id = use_state(|| String::default());
+
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
 
     let modal_handle = {
         let integration_id = integration_id.clone();
@@ -149,13 +155,16 @@ pub fn integrations() -> Html {
     let cloned_pagination = pagination.clone();
     let cloned_initial = initial.clone();
     let cloned_search_text = search_text.clone();
+    let token = token.clone();
     let fetch_handle_integrations = move |()| {
         let integrations = cloned_integrations.clone();
         let pagination = cloned_pagination.clone();
         let cloned_initial = cloned_initial.clone();
         let search_text = cloned_search_text.clone();
+        let token = token.clone();
         spawn_local(async move {
             let response = fetch_integrations(
+                token,
                 pagination.per_page,
                 pagination.current_page,
                 search_text.to_string(),
@@ -181,9 +190,7 @@ pub fn integrations() -> Html {
     let export = {
         let integrations = integrations.clone();
         Callback::from(move |_: MouseEvent| {
-            let mut csv_data =
-                "Name|API key|Secret key|Status"
-                    .to_string();
+            let mut csv_data = "Name|API key|Secret key|Status".to_string();
 
             for integration in integrations.iter() {
                 let data: String = format!(
@@ -441,6 +448,10 @@ struct ModalProps {
 fn edit_modal(props: &ModalProps) -> Html {
     let integration = use_state(Integration::default);
 
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+
     let cloned_integration = integration.clone();
     let state_changed = Callback::from(move |event: Event| {
         let mut data = cloned_integration.deref().clone();
@@ -487,15 +498,16 @@ fn edit_modal(props: &ModalProps) -> Html {
         let on_ok = props.on_ok_response.clone();
         let on_handle_integrations = props.fetch_handle_integrations.clone();
         let integration_id = props.integration_id.clone();
+        let token = token.clone();
         Callback::from(move |_event: MouseEvent| {
             let integration: Integration = cloned_integration.clone();
             let on_ok = on_ok.clone();
             let on_handle_integrations = on_handle_integrations.clone();
             let integration_id = integration_id.clone();
-            log!(integration.clone().status);
+            let token = token.clone();
             spawn_local(async move {
                 if !integration_id.is_empty() {
-                    let response = update_integration(integration, integration_id).await;
+                    let response = update_integration(token, integration, integration_id).await;
 
                     match response {
                         Ok(_response) => {
@@ -505,7 +517,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                         Err(e) => log!("Error: ", e.to_string()),
                     }
                 } else {
-                    let response = create_integration(integration).await;
+                    let response = create_integration(token, integration).await;
 
                     match response {
                         Ok(_response) => {
@@ -523,7 +535,7 @@ fn edit_modal(props: &ModalProps) -> Html {
     let fetch_handle_integration = move |id: String| {
         let integration = cloned_integration.clone();
         spawn_local(async move {
-            let response = fetch_integration(id).await;
+            let response = fetch_integration(token, id).await;
 
             match response {
                 Ok(response) => {
@@ -635,7 +647,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                     </label>
                     <input
                         type="checkbox"
-                        id="toggler" 
+                        id="toggler"
                         name="status"
                         onchange={state_changed.clone()}
                         checked={if integration.clone().status.to_uppercase() == "ACTIVE" {true} else {false}}
@@ -667,17 +679,23 @@ struct DeleteModalProps {
 
 #[function_component(DeleteModal)]
 fn delete_modal(props: &DeleteModalProps) -> Html {
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+
     let delete_integration_handler = {
         let on_ok = props.on_ok_response.clone();
         let on_handle_integrations = props.fetch_handle_integrations.clone();
         let integration_id = props.integration_id.clone();
+        let token = token.clone();
         Callback::from(move |_event: MouseEvent| {
             let on_ok = on_ok.clone();
             let on_handle_integrations = on_handle_integrations.clone();
             let integration_id = integration_id.clone();
+            let token = token.clone();
             spawn_local(async move {
                 if !integration_id.is_empty() {
-                    let response = delete_integration(integration_id).await;
+                    let response = delete_integration(token, integration_id).await;
 
                     match response {
                         Ok(_response) => {

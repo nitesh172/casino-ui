@@ -1,5 +1,5 @@
 use crate::{
-    apis::user::{api_me, CurrentUser},
+    apis::user::{api_delete_user, api_me, api_update_user, CurrentUser},
     render_svg,
     stores::auth_store::AuthStore,
 };
@@ -10,9 +10,9 @@ use yewdux::prelude::*;
 
 #[function_component(Settings)]
 pub fn settings() -> Html {
-    let is_open = use_state(|| true);
-    let (_, auth_dispatch) = use_store::<AuthStore>();
-
+    let is_open = use_state(|| false);
+    let (auth_store, auth_dispatch) = use_store::<AuthStore>();
+    let is_delete_open = use_state(|| false);
     let user = use_state(|| CurrentUser::default());
 
     let on_username_input = {
@@ -41,46 +41,65 @@ pub fn settings() -> Html {
         })
     };
 
-    let cloned_user = user.clone();
+    let delete_modal_handle = {
+        let is_delete_open = is_delete_open.clone();
+        Callback::from(move |_| {
+            is_delete_open.set(!*is_delete_open);
+        })
+    };
+
+    let on_ok_delete_handle = {
+        let is_delete_open = is_delete_open.clone();
+        Callback::from(move |_| {
+            is_delete_open.set(!*is_delete_open);
+        })
+    };
+
+    let cloned_token = auth_store.token.clone();
+    let cloned_dispatch = auth_dispatch.clone();
     let api_me_fn = move || {
-        let user = cloned_user.clone(); // Clone for the closure
+        let token = cloned_token.clone();
+        let store_dispatch = cloned_dispatch.clone();
         spawn_local(async move {
-            let response = api_me().await;
+            let response = api_me(token).await;
 
             match response {
-                Ok(response) => user.set(response),
+                Ok(response) => store_dispatch.reduce_mut(move |store| {
+                    store.current_user = response;
+                }),
                 Err(e) => log!("Error: {}", e.to_string()),
             }
         });
     };
 
     let update_user = {
-        // let user_cloned = (*user).clone();
-
-        // let updated_user = CreateUser {
-        //     name: user_cloned.name.clone().unwrap_or_else(|| String::new()),
-        //     email_address: user_cloned.email_address.clone(),
-        //     roles: user_cloned.roles.clone(),
-        //     status: user_cloned.status.clone(),
-        // };
-
-        Callback::from(move |_event: SubmitEvent| {
-            // let user = (updated_user).clone();
+        let user_cloned = (*user).clone();
+        let token = auth_store.token.clone();
+        let api_me_fn = api_me_fn.clone();
+        Callback::from(move |_event: MouseEvent| {
+            let user = user_cloned.clone();
+            let token = token.clone();
+            let api_me_fn = api_me_fn.clone();
             spawn_local(async move {
-                // let response = api_update_user(user).await;
+                let response = api_update_user(token, user).await;
 
-                // match response {
-                //     Ok(response) => log!(""),
-                //     // Ok(response) => user.clone().set(response),
-                //     Err(e) => log!("Error: {}", e.to_string()),
-                // }
+                match response {
+                    Ok(_response) => {
+                        api_me_fn();
+                    },
+                    // Ok(response) => user.clone().set(response),
+                    Err(e) => log!("Error: {}", e.to_string()),
+                }
             });
         })
     };
 
-    use_effect_with((), move |_| {
-        log!("Ui rendered");
-        api_me_fn(); // Call the async function
+    let auth_user = auth_store.current_user.clone();
+    let cloned_user = user.clone();
+    use_effect_with(auth_user.clone(), move |_| {
+        if !auth_user.id.is_empty() {
+            cloned_user.set(auth_user)
+        }
         || {}
     });
 
@@ -113,8 +132,8 @@ pub fn settings() -> Html {
                     </div>
                     <div class="flex-1 flex justify-between items-center">
                         <div>
-                            <h3>{user.name.clone()}</h3>
-                            <p>{"username"}</p>
+                            <h3>{auth_store.current_user.name.clone()}</h3>
+                            <p>{"Username"}</p>
                         </div>
                         <div>
                             <button onclick={edit_modal_handle.clone()} class="bg-grey-shade-0 flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
@@ -227,7 +246,7 @@ pub fn settings() -> Html {
                        </div>
                        <div class="bg-grey-shade-14 border border-grey-shade-11 p-5 rounded space-y-2">
                             <p class="text-16 font-700 leading-20 text-grey-shade-0">{"Delet account"}</p>
-                            <button class="bg-grey-shade-0 flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
+                            <button onclick={delete_modal_handle.clone()} class="bg-grey-shade-0 flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
                                 <span class="pr-2">
                                     {html! { render_svg!("bxs:trash", color="#ffff",width="14px")}}
                                 </span>
@@ -239,6 +258,17 @@ pub fn settings() -> Html {
             </div>
         </div>
         { if *is_open {html! {<EditModal edit_modal_handle={edit_modal_handle.clone()} on_username_input={on_username_input} user={(*user).clone()} update_user={update_user.clone()} />}  } else { html! ("") } }
+        { if *is_delete_open {
+            html! {
+                    <DeleteModal
+                        delete_modal_handle={delete_modal_handle.clone()}
+                        on_ok_response={on_ok_delete_handle.clone()}
+                    />
+                }
+            } else {
+                html! {}
+            }
+        }
         </>
     )
 }
@@ -247,7 +277,7 @@ pub fn settings() -> Html {
 struct EditModalProps {
     edit_modal_handle: Callback<MouseEvent>,
     on_username_input: Callback<InputEvent>,
-    update_user: Callback<SubmitEvent>,
+    update_user: Callback<MouseEvent>,
     user: CurrentUser,
 }
 
@@ -318,7 +348,7 @@ fn edit_modal(props: &EditModalProps) -> Html {
                     </div>
                 </div>
                 <div class="flex space-x-4  items-center justify-start p-0 rounded-sm">
-                    <button type="submit" onsubmit={props.update_user.clone()} class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
+                    <button type="button" onclick={props.update_user.clone()} class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
                         {"Save"}
                     </button>
                     <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400" onclick={props.edit_modal_handle.clone()}>
@@ -326,7 +356,70 @@ fn edit_modal(props: &EditModalProps) -> Html {
                     </button>
                 </div>
             </div>
+        </div>
+    }
+}
 
+#[derive(Properties, PartialEq)]
+struct DeleteModalProps {
+    #[prop_or_default]
+    pub on_ok_response: Callback<()>,
+    delete_modal_handle: Callback<MouseEvent>,
+}
+
+#[function_component(DeleteModal)]
+fn delete_modal(props: &DeleteModalProps) -> Html {
+    let (auth_store, auth_dispatch) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+    let current_user = auth_store.current_user.clone();
+
+    let delete_user_handler = {
+        let on_ok = props.on_ok_response.clone();
+        let current_user = current_user.clone();
+        let cloned_token = token.clone();
+        let store_dispatch = auth_dispatch.clone();
+        Callback::from(move |_event: MouseEvent| {
+            let on_ok = on_ok.clone();
+            let current_user = current_user.clone();
+            let cloned_token = cloned_token.clone();
+            let store_dispatch = store_dispatch.clone();
+            spawn_local(async move {
+                if !current_user.id.clone().is_empty() {
+                    let response = api_delete_user(cloned_token, current_user.id).await;
+
+                    match response {
+                        Ok(_response) => {
+                            on_ok.emit(());
+                            store_dispatch
+                            .reduce_mut(move |store| store.reset_to_default());
+                        }
+                        Err(e) => log!("Error: ", e.to_string()),
+                    }
+                }
+            });
+        })
+    };
+
+    html! {
+        <div class="z-10 fixed inset-0 bg-grey-shade-0/70 w-screen flex h-screen items-center justify-center p-5">
+            <div class=" bg-white p-7 rounded-sm space-y-7">
+                <div class="flex items-center justify-between">
+                    <p>{"Confirmation required"}</p>
+                    <span class="cursor-pointer" onclick={props.delete_modal_handle.clone()}>
+                        {html! {render_svg!("mdi:multiply",color="#232323",width="25px")}}
+                    </span>
+                </div>
+                <div>{"Are you sure you want to proceed with this action?"}</div>
+                <div class="flex space-x-4  items-center justify-start p-0 rounded-sm">
+                    <button type="button" onclick={delete_user_handler} class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
+                        {"Confirm"}
+                    </button>
+                    <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400" onclick={props.delete_modal_handle.clone()}>
+                        {"Close"}
+                    </button>
+                </div>
+            </div>
         </div>
     }
 }

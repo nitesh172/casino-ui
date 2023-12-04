@@ -37,9 +37,10 @@ pub struct IntegrationsDeleteResponse {
     pub message: String
 }
 
-pub async fn create_integration(integration: Integration) -> Result<IntegrationResponse, Error> {
+pub async fn create_integration(token: String, integration: Integration) -> Result<IntegrationResponse, Error> {
     let response = Request::post(&format!("{}api/providers", APP_HOST))
         .header("Content-Type", "application/json")
+        .header("Authorization", &format!("Bearer {}", token))
         .body(
             json!({
                 "api_key": integration.clone().api_key,
@@ -56,20 +57,23 @@ pub async fn create_integration(integration: Integration) -> Result<IntegrationR
 }
 
 
-pub async fn fetch_integrations(per_page: i32, current_page: i32, search_text: String) -> Result<IntegrationsResponse, Error> {
+pub async fn fetch_integrations(token: String, per_page: i32, current_page: i32, search_text: String) -> Result<IntegrationsResponse, Error> {
     let response = Request::get(&format!("{}api/providers?limit={}&name={}&page={}", APP_HOST, per_page, search_text, current_page))
         .header("Content-Type", "application/json")
+        .header("Authorization", &format!("Bearer {}", token))
         .send().await?;
 
     response.json::<IntegrationsResponse>().await
 }
 
 pub async fn update_integration(
+    token: String,
     integration: Integration,
     integration_id: String
 ) -> Result<IntegrationResponse, Error> {
     let response = Request::put(&format!("{}api/providers/{}", APP_HOST, integration_id))
         .header("Content-Type", "application/json")
+        .header("Authorization", &format!("Bearer {}", token))
         .body(
             json!({
                 "api_key": integration.clone().api_key,
@@ -83,17 +87,19 @@ pub async fn update_integration(
     response.json::<IntegrationResponse>().await
 }
 
-pub async fn fetch_integration(integration_id: String) -> Result<IntegrationResponse, Error> {
+pub async fn fetch_integration(token: String, integration_id: String) -> Result<IntegrationResponse, Error> {
     let response = Request::get(&format!("{}api/providers/{}", APP_HOST, integration_id))
         .header("Content-Type", "application/json")
+        .header("Authorization", &format!("Bearer {}", token))
         .send().await?;
 
     response.json::<IntegrationResponse>().await
 }
 
-pub async fn delete_integration(integration_id: String) -> Result<IntegrationsDeleteResponse, Error> {
+pub async fn delete_integration(token: String, integration_id: String) -> Result<IntegrationsDeleteResponse, Error> {
     let response = Request::delete(&format!("{}api/providers/{}", APP_HOST, integration_id))
         .header("Content-Type", "application/json")
+        .header("Authorization", &format!("Bearer {}", token))
         .send().await?;
 
     response.json::<IntegrationsDeleteResponse>().await

@@ -1,5 +1,5 @@
 use crate::{
-    // apis::user::api_login,
+    apis::user::api_login,
     components::{
         atoms::{
             button::{Button, ButtonStyle, ButtonType},
@@ -74,21 +74,22 @@ pub fn login() -> Html {
                 return;
             }
 
-            // let email: String = email.clone();
-            // let password: String = password.clone();
+            let email: String = email.clone();
+            let password: String = password.clone();
             let store_dispatch = store_dispatch.clone();
 
             spawn_local(async move {
-                // let response = api_login(email, password).await;
+                let response = api_login(email, password).await;
 
-                // match response {
-                // Ok(response) =>
-                store_dispatch.reduce_mut(move |store| {
-                    store.is_authenticated = true;
-                    store.token = "abc".to_owned() // response.token.clone();
-                                                   // }),
-                                                   // Err(e) => log!(e.to_string()),
-                })
+                match response {
+                    Ok(response) => {
+                        store_dispatch.reduce_mut(move |store| {
+                            store.is_authenticated = true;
+                            store.token = response.token.clone();
+                        })
+                    }
+                    Err(e) => log!(e.to_string())
+                }
             });
         })
     };

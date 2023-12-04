@@ -1,16 +1,23 @@
-use gloo_console::log;
 use crate::{
-    components::organisms::paginator::{PaginationDataProps, PaginationFucProps, Paginator},
-    apis::ticket::{ TicketResponse, fetch_tickets },
+    apis::ticket::{fetch_tickets, update_ticket_status, TicketResponse, UpdateTicket},
+    components::organisms::{
+        export_button::{download_csv_file, ExportButton},
+        paginator::{PaginationDataProps, PaginationFucProps, Paginator},
+    },
     render_svg,
+    stores::auth_store::AuthStore,
 };
-use web_sys::{wasm_bindgen::JsCast, HtmlInputElement};
+use gloo_console::log;
 use std::ops::Deref;
-use yew::{ platform::spawn_local, prelude::* };
+use web_sys::{wasm_bindgen::JsCast, HtmlElement, HtmlInputElement};
+use yew::{platform::spawn_local, prelude::*};
+use yewdux::prelude::*;
 
 #[function_component(Tickets)]
 pub fn tickets() -> Html {
+    let is_open = use_state(|| false);
     let tickets = use_state(|| Vec::<TicketResponse>::default());
+    let ticket = use_state(|| UpdateTicket::default());
     let search_text = use_state(|| String::default());
     let initial = use_state(|| true);
     let pagination = use_state(|| PaginationDataProps {
@@ -20,25 +27,49 @@ pub fn tickets() -> Html {
         current_page: 1,
     });
 
-    let t_head = vec!["ID", "Email ID", "Username", "Query", "Status", "Actions"];
+    let t_head = vec!["ID", "Username", "Query", "Status", "Actions"];
+
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+
+    let modal_handle = {
+        let is_open = is_open.clone();
+        let ticket = ticket.clone();
+        Callback::from(move |_| {
+            is_open.set(!*is_open);
+            ticket.set(UpdateTicket::default());
+        })
+    };
+
+    let on_ok_response = {
+        let is_open = is_open.clone();
+        let ticket = ticket.clone();
+        Callback::from(move |_| {
+            is_open.set(false);
+            ticket.set(UpdateTicket::default());
+        })
+    };
 
     let cloned_tickets = tickets.clone();
-    let cloned_pagination = pagination.clone();
+    // let cloned_pagination = pagination.clone();
+    let token = token.clone();
     let fetch_handle_tickets = move |()| {
         let tickets = cloned_tickets.clone();
-        let pagination = cloned_pagination.clone();
+        // let pagination = cloned_pagination.clone();
+        let token = token.clone();
         spawn_local(async move {
-            let response = fetch_tickets().await;
+            let response = fetch_tickets(token).await;
 
             match response {
                 Ok(response) => {
-                    tickets.set(response.result);
-                    pagination.set(PaginationDataProps {
-                        current_page: response.page,
-                        per_page: response.per_page,
-                        total_items: response.total,
-                        total_pages: response.total_pages,
-                    })
+                    tickets.set(response.data);
+                    // pagination.set(PaginationDataProps {
+                    //     current_page: response.page,
+                    //     per_page: response.per_page,
+                    //     total_items: response.total,
+                    //     total_pages: response.total_pages,
+                    // })
                 }
                 Err(e) => log!("Error: {}", e.to_string()),
             }
@@ -85,6 +116,50 @@ pub fn tickets() -> Html {
         cloned_search_text.set(value);
     });
 
+    let status_callback = {
+        let ticket = ticket.clone();
+        let is_open = is_open.clone();
+        Callback::from(move |event: MouseEvent| {
+            if let Some(target) = event.target() {
+                if let Some(li) = target.dyn_ref::<HtmlElement>() {
+                    if let Some(id) = li.get_attribute("data-id") {
+                        if !id.is_empty() {
+                            if let Some(status) = li.get_attribute("id") {
+                                if !id.is_empty() {
+                                    is_open.set(!*is_open);
+                                    ticket.set(UpdateTicket {
+                                        id: id.clone(),
+                                        status: status.clone(),
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    };
+
+    let export = {
+        let tickets = tickets.clone();
+        Callback::from(move |_: MouseEvent| {
+            let mut csv_data = "ID|Username|Query|Status".to_string();
+
+            for ticket in tickets.iter() {
+                let data: String = format!(
+                    "\n{}|{}|{}|{}",
+                    ticket.clone().id,
+                    ticket.clone().user_id,
+                    ticket.clone().query,
+                    ticket.clone().status,
+                );
+                csv_data = csv_data + data.as_str();
+            }
+
+            download_csv_file(csv_data.as_str())
+        })
+    };
+
     let onfetch = fetch_handle_tickets.clone();
     use_effect_with((), move |_| {
         onfetch(()); // Call the async function
@@ -111,14 +186,7 @@ pub fn tickets() -> Html {
                             </div>
                         </div>
                         <div class="flex flex-row items-center w-full md:w-auto gap-2">
-                            <button
-                                class="bg-grey-shade-0 flex flex-1 md:flex-none items-center rounded justify-center lg:justify-normal p-2 text-grey-shade-14 text-12 font-400"
-                            >
-                                <span class="pr-2">
-                                {html! { render_svg!("majesticons:file", color="#ffff",width="14px")}}
-                                </span>
-                                {"Export"}
-                            </button>
+                            <ExportButton export={export.clone()} />
                         </div>
                     </div>
                     <ContextProvider<PaginationDataProps> context={(*pagination).clone()}>
@@ -156,8 +224,8 @@ pub fn tickets() -> Html {
                                             <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
                                                 <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
                                                 <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                                    <li class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Open" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Open" }</li>
-                                                    <li class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Close" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Close" }</li>
+                                                    <li id="Open" data-id={ticket.clone().id} onclick={status_callback.clone()} class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Close" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Open" }</li>
+                                                    <li id="Close" data-id={ticket.clone().id} onclick={status_callback.clone()} class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Open" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Close" }</li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -205,6 +273,92 @@ pub fn tickets() -> Html {
                     </div>
                 </div>
             </div>
+            { if *is_open {
+                html! {
+                        <StatusConfirmModal
+                            modal_handle={modal_handle.clone()}
+                            on_ok_response={on_ok_response.clone()}
+                            fetch_handle_tickets={fetch_handle_tickets.clone()}
+                            ticket={ticket.clone()}
+                        />
+                    }
+                } else {
+                    html! {}
+                }
+            }
         </>
+    }
+}
+
+#[derive(Properties, PartialEq)]
+struct StatusModalProps {
+    #[prop_or_default]
+    pub on_ok_response: Callback<()>,
+    pub fetch_handle_tickets: Callback<()>,
+    pub ticket: UseStateHandle<UpdateTicket>,
+    modal_handle: Callback<MouseEvent>,
+}
+
+#[function_component(StatusConfirmModal)]
+fn status_confirm_modal(props: &StatusModalProps) -> Html {
+    log!(props.ticket.id.clone(), props.ticket.status.clone());
+
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+
+    let update_status_handler = {
+        let on_ok = props.on_ok_response.clone();
+        let on_handle_tickets = props.fetch_handle_tickets.clone();
+        let ticket = props.ticket.clone();
+        let token = token.clone();
+        Callback::from(move |_event: MouseEvent| {
+            let on_ok = on_ok.clone();
+            let on_handle_tickets = on_handle_tickets.clone();
+            let ticket = ticket.clone();
+            let token = token.clone();
+            spawn_local(async move {
+                if !ticket.id.is_empty() && !ticket.status.is_empty() {
+                    let response = update_ticket_status(
+                        token,
+                        UpdateTicket {
+                            id: ticket.id.clone(),
+                            status: ticket.status.clone(),
+                        },
+                    )
+                    .await;
+
+                    match response {
+                        Ok(_response) => {
+                            on_ok.emit(());
+                            on_handle_tickets.emit(());
+                        }
+                        Err(e) => log!("Error: ", e.to_string()),
+                    }
+                }
+            });
+        })
+    };
+
+    html! {
+        <div class="z-10 fixed inset-0 bg-grey-shade-0/70 w-screen flex h-screen items-center justify-center p-5">
+            <div class=" bg-white p-7 rounded-sm space-y-7">
+                <div class="flex items-center justify-between">
+                    <p>{"Confirmation required"}</p>
+                    <span class="cursor-pointer" onclick={props.modal_handle.clone()}>
+                        {html! {render_svg!("mdi:multiply",color="#232323",width="25px")}}
+                    </span>
+                </div>
+                <div>{"Are you sure you want to proceed with this action?"}</div>
+                <div class="flex space-x-4  items-center justify-start p-0 rounded-sm">
+                    <button type="button" onclick={update_status_handler} class="bg-primary flex items-center rounded p-2 text-grey-shade-14 text-12 font-400">
+                        {"Confirm"}
+                    </button>
+                    <button class="bg-grey-shade-14 flex items-center rounded p-2 text-primary text-12 font-400" onclick={props.modal_handle.clone()}>
+                        {"Close"}
+                    </button>
+                </div>
+            </div>
+        </div>
     }
 }

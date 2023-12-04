@@ -9,11 +9,13 @@ use crate::{
     },
     render_svg,
     utils::format_dates::format_date_to_readable,
+    stores::auth_store::AuthStore,
 };
 use gloo_console::log;
 use std::ops::Deref;
 use web_sys::{wasm_bindgen::JsCast, HtmlElement, HtmlInputElement};
 use yew::{platform::spawn_local, prelude::*};
+use yewdux::prelude::*;
 
 #[function_component(Notifications)]
 pub fn notifications() -> Html {
@@ -29,6 +31,10 @@ pub fn notifications() -> Html {
         current_page: 1,
     });
     let notification_id = use_state(|| String::default());
+
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
 
     let modal_handle = {
         let is_open = is_open.clone();
@@ -98,13 +104,15 @@ pub fn notifications() -> Html {
     let cloned_pagination = pagination.clone();
     let cloned_initial = initial.clone();
     let cloned_search_text = search_text.clone();
+    let token = token.clone();
     let fetch_handle_notifications = move |()| {
         let notifications = cloned_notifications.clone();
         let pagination = cloned_pagination.clone();
         let cloned_initial = cloned_initial.clone();
         let search_text = cloned_search_text.clone();
+        let token = token.clone();
         spawn_local(async move {
-            let response = fetch_notifications(pagination.per_page, search_text.to_string()).await;
+            let response = fetch_notifications(token, pagination.per_page, search_text.to_string()).await;
 
             match response {
                 Ok(response) => {
@@ -416,19 +424,25 @@ fn edit_modal(props: &ModalProps) -> Html {
         cloned_state.set(data);
     });
 
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+
     let save_notification_handler = {
         let st = (*state).clone();
         let on_ok = props.on_ok_response.clone();
         let on_handle_notifications = props.fetch_handle_notifications.clone();
         let notification_id = props.notification_id.clone();
+        let token = token.clone();
         Callback::from(move |_event: MouseEvent| {
             let notification: Notification = st.clone();
             let on_ok = on_ok.clone();
             let on_handle_notifications = on_handle_notifications.clone();
             let notification_id = notification_id.clone();
+            let token = token.clone();
             spawn_local(async move {
                 if !notification_id.is_empty() {
-                    let response = update_notification(notification, notification_id).await;
+                    let response = update_notification(token, notification, notification_id).await;
 
                     match response {
                         Ok(_response) => {
@@ -438,7 +452,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                         Err(e) => log!("Error: ", e.to_string()),
                     }
                 } else {
-                    let response = create_notification(notification).await;
+                    let response = create_notification(token, notification).await;
 
                     match response {
                         Ok(_response) => {
@@ -455,8 +469,9 @@ fn edit_modal(props: &ModalProps) -> Html {
     let cloned_notification = state.clone();
     let fetch_handle_notification = move |id: String| {
         let notification = cloned_notification.clone();
+        let token = token.clone();
         spawn_local(async move {
-            let response = fetch_notification(id).await;
+            let response = fetch_notification(token,id).await;
 
             match response {
                 Ok(response) => {
@@ -574,17 +589,24 @@ struct DeleteModalProps {
 
 #[function_component(DeleteModal)]
 fn delete_modal(props: &DeleteModalProps) -> Html {
+
+    let (auth_store, _) = use_store::<AuthStore>();
+
+    let token = auth_store.token.clone();
+
     let delete_notification_handler = {
         let on_ok = props.on_ok_response.clone();
         let on_handle_notifications = props.fetch_handle_notifications.clone();
         let notification_id = props.notification_id.clone();
+        let token = token.clone();
         Callback::from(move |_event: MouseEvent| {
             let on_ok = on_ok.clone();
             let on_handle_notifications = on_handle_notifications.clone();
             let notification_id = notification_id.clone();
+            let token = token.clone();
             spawn_local(async move {
                 if !notification_id.is_empty() {
-                    let response = delete_notification(notification_id).await;
+                    let response = delete_notification(token, notification_id).await;
 
                     match response {
                         Ok(_response) => {
