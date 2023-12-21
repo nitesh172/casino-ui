@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,600;6..12,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .toggle-checkbox:checked {
+    @apply right-0 border-primary;
+  }
+
+  .toggle-checkbox:checked + .toggle-label {
+    @apply bg-primary;
+  }
+}
+
+/* Hamburger Menu */
+.hamburger {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  transition: all 0.25s;
+  position: relative;
+}
+
+.hamburger-top,
+.hamburger-middle,
+.hamburger-bottom {
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  top: 0;
+  left: 0;
+  background: #fff;
+  transform: rotate(0);
+  transition: all 0.5s;
+}
+
+.hamburger-middle {
+  transform: translateY(7px);
+}
+
+.hamburger-bottom {
+  transform: translateY(14px);
+}
+
+.open {
+  transform: rotate(90deg);
+}
+
+.open .hamburger-top {
+  transform: rotate(45deg) translateY(6px) translateX(6px);
+}
+
+.open .hamburger-middle {
+  display: none;
+}
+
+.open .hamburger-bottom {
+  transform: rotate(-45deg) translateY(6px) translateX(-6px);
+}
+
+toggle-switch {
+  display: flex;
+  align-items: center;
+}
+
+.toggle-switch label {
+  margin-right: 8px; /* Adjust spacing between label and switch */
+}
+
+.toggle-switch input {
+  position: relative;
+  display: inline-block;
+  width: 39px; /* Adjust the width of the switch */
+  height: 20px; /* Adjust the height of the switch */
+  appearance: none;
+  background-color: #ccc;
+  padding: 2px 1px;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.toggle-switch input:checked {
+  @apply bg-primary; /* Adjust the background color when the switch is checked */
+}
+
+.toggle-switch input::before {
+  content: '';
+  position: absolute;
+  width: 16px; /* Adjust the width of the switch handle */
+  height: 16px; /* Adjust the height of the switch handle */
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch input:checked::before {
+  transform: translateX(
+    20px
+  ); /* Adjust the distance the switch handle moves when checked */
+}
+
+
+.hideMe {
+  -webkit-animation: cssAnimation 4s forwards; 
+  animation: cssAnimation 4s forwards;
+}
+@keyframes cssAnimation {
+  0%   {display: block;}
+  90%  {display: block;}
+  100% {display: none;}
+}
+@-webkit-keyframes cssAnimation {
+  0%   {display: block;}
+  90%  {display: block;}
+  100% {display: none;}
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #212124;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: black;
+}
