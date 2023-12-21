@@ -25,11 +25,11 @@ pub struct IntegrationResponse {
 
 #[derive(Serialize, Deserialize, Clone, Properties, PartialEq)]
 pub struct IntegrationsResponse {
-    pub data: Vec<IntegrationResponse>,
-    // pub page: i32,
-    // pub per_page: i32,
-    // pub total: i32,
-    // pub total_pages: i32
+    pub result: Vec<IntegrationResponse>,
+    pub page: i32,
+    pub per_page: i32,
+    pub total: i32,
+    pub total_pages: i32
 }
 
 #[derive(Serialize, Deserialize, Clone, Properties, PartialEq)]

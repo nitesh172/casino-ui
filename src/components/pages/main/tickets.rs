@@ -1,16 +1,17 @@
 use crate::{
-    apis::ticket::{fetch_tickets, update_ticket_status, TicketResponse, UpdateTicket},
+    apis::ticket::{ fetch_tickets, update_ticket_status, TicketResponse, UpdateTicket },
     components::organisms::{
-        export_button::{download_csv_file, ExportButton},
-        paginator::{PaginationDataProps, PaginationFucProps, Paginator},
+        export_button::{ download_csv_file, ExportButton },
+        paginator::{ PaginationDataProps, PaginationFucProps, Paginator },
     },
     render_svg,
     stores::auth_store::AuthStore,
+    ToastProps,
 };
 use gloo_console::log;
 use std::ops::Deref;
-use web_sys::{wasm_bindgen::JsCast, HtmlElement, HtmlInputElement};
-use yew::{platform::spawn_local, prelude::*};
+use web_sys::{ wasm_bindgen::JsCast, HtmlElement, HtmlInputElement };
+use yew::{ platform::spawn_local, prelude::* };
 use yewdux::prelude::*;
 
 #[function_component(Tickets)]
@@ -27,7 +28,7 @@ pub fn tickets() -> Html {
         current_page: 1,
     });
 
-    let t_head = vec!["ID", "Username", "Query", "Status", "Actions"];
+    let t_head = vec!["ID", "Email ID", "Username", "Query", "Status", "Actions"];
 
     let (auth_store, _) = use_store::<AuthStore>();
 
@@ -46,30 +47,36 @@ pub fn tickets() -> Html {
         let is_open = is_open.clone();
         let ticket = ticket.clone();
         Callback::from(move |_| {
-            is_open.set(false);
+            is_open.set(!*is_open);
             ticket.set(UpdateTicket::default());
         })
     };
 
     let cloned_tickets = tickets.clone();
-    // let cloned_pagination = pagination.clone();
+    let cloned_pagination = pagination.clone();
+    let cloned_search_text = search_text.clone();
     let token = token.clone();
     let fetch_handle_tickets = move |()| {
         let tickets = cloned_tickets.clone();
-        // let pagination = cloned_pagination.clone();
+        let pagination = cloned_pagination.clone();
+        let search_text = cloned_search_text.clone();
         let token = token.clone();
         spawn_local(async move {
-            let response = fetch_tickets(token).await;
+            let response = fetch_tickets(
+                token,
+                pagination.deref().clone(),
+                search_text.to_string()
+            ).await;
 
             match response {
                 Ok(response) => {
-                    tickets.set(response.data);
-                    // pagination.set(PaginationDataProps {
-                    //     current_page: response.page,
-                    //     per_page: response.per_page,
-                    //     total_items: response.total,
-                    //     total_pages: response.total_pages,
-                    // })
+                    tickets.set(response.result);
+                    pagination.set(PaginationDataProps {
+                        current_page: response.page,
+                        per_page: response.per_page,
+                        total_items: response.total,
+                        total_pages: response.total_pages,
+                    });
                 }
                 Err(e) => log!("Error: {}", e.to_string()),
             }
@@ -107,11 +114,7 @@ pub fn tickets() -> Html {
     let cloned_search_text = search_text.clone();
     let cloned_initial = initial.clone();
     let search_text_changed = Callback::from(move |event: Event| {
-        let value = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .value();
+        let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
         cloned_initial.set(true);
         cloned_search_text.set(value);
     });
@@ -140,31 +143,42 @@ pub fn tickets() -> Html {
         })
     };
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let export = {
         let tickets = tickets.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_: MouseEvent| {
-            let mut csv_data = "ID|Username|Query|Status".to_string();
-
+            let mut csv_data = "ID|Username|Email ID|Query|Status".to_string();
+            let add_toast = add_toast.clone();
             for ticket in tickets.iter() {
                 let data: String = format!(
-                    "\n{}|{}|{}|{}",
+                    "\n{}|{}|{}|{}|{}",
                     ticket.clone().id,
-                    ticket.clone().user_id,
+                    ticket.clone().user.name,
+                    ticket.clone().user.email_address,
                     ticket.clone().query,
-                    ticket.clone().status,
+                    ticket.clone().status
                 );
                 csv_data = csv_data + data.as_str();
             }
 
-            download_csv_file(csv_data.as_str())
+            download_csv_file(csv_data.as_str(), add_toast)
         })
     };
 
-    let onfetch = fetch_handle_tickets.clone();
-    use_effect_with((), move |_| {
-        onfetch(()); // Call the async function
-        || {}
-    });
+    {
+        let onfetch = fetch_handle_tickets.clone();
+        let pagination = pagination.clone();
+        let search_text = search_text.clone();
+        use_effect_with((pagination.clone(), search_text.clone()), move |_| {
+            if *initial {
+                onfetch(());
+            }
+
+            || {}
+        });
+    }
 
     html! {
         <>
@@ -213,8 +227,8 @@ pub fn tickets() -> Html {
                                     html!{
                                         <tr>
                                             <td class="py-3  text-left text-14 font-medium text-grey-shade-1 tracking-wider">{ticket.clone().id}</td>
-                                            // <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pl-5">{ticket.clone().email_address}</td>
-                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">{ticket.clone().user_id}</td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">{ticket.clone().user.email_address}</td>
+                                            <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider">{ticket.clone().user.name}</td>
                                             <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider pr-5">{ticket.clone().query}</td>
                                             <td class="py-3 text-left text-14 font-medium text-grey-shade-14 tracking-wider">
                                                 <span class={format!("rounded-full py-1 px-2 w-[24px] {}", if ticket.clone().status == "Open" {"bg-warning"} else {"bg-success"})}>
@@ -224,8 +238,8 @@ pub fn tickets() -> Html {
                                             <td class="py-3 text-left text-14 font-medium text-grey-shade-1 tracking-wider relative group cursor-pointer">
                                                 <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
                                                 <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
-                                                    <li id="Open" data-id={ticket.clone().id} onclick={status_callback.clone()} class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Close" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Open" }</li>
-                                                    <li id="Close" data-id={ticket.clone().id} onclick={status_callback.clone()} class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Open" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Close" }</li>
+                                                    <li id="Open" data-id={ticket.clone().id} onclick={status_callback.clone()} class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Closed" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Open" }</li>
+                                                    <li id="Closed" data-id={ticket.clone().id} onclick={status_callback.clone()} class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Open" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Closed" }</li>
                                                 </ul>
                                             </td>
                                         </tr>
@@ -244,15 +258,15 @@ pub fn tickets() -> Html {
                                                 <div class="flex flex-col gap-2.5">
                                                     <div class="text-14 font-medium text-grey-shade-1">{ticket.clone().id}</div>
                                                     <div class="flex flex-col gap-1">
-                                                        <div class="text-grey-shade-5 text-12">{ticket.clone().user_id}</div>
-                                                        // <div class="text-14">{ticket.clone().email_address}</div>
+                                                        <div class="text-grey-shade-5 text-12">{ticket.clone().user.name}</div>
+                                                        <div class="text-14">{ticket.clone().user.email_address}</div>
                                                     </div>
                                                 </div>
                                                 <div class="text-12 font-medium text-grey-shade-1 relative group cursor-pointer">
                                                     <span > {html! { render_svg!    ("icon-park:more-one", color="#000000",width="24px")}}</span>
                                                     <ul class="hidden absolute -left-10 -mt-1 space-y-2 group-hover:block  py-2 rounded-lg shadow-md shadow-grey-shade-0/10 group-hover:bg-grey-shade-14 z-10">
                                                         <li class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Open" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Open" }</li>
-                                                        <li class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Close" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Close" }</li>
+                                                        <li class={format!("px-4 py-2 text-grey-shade-0 {}", if ticket.clone().status == "Closed" {"hover:text-grey-shade-2 hover:bg-grey-shade-12 cursor-pointer"} else {"cursor-not-allowed"})}>{ "Closed" }</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -262,7 +276,7 @@ pub fn tickets() -> Html {
                                             </div>
                                         </div>
                                         <div class="flex flex-row justify-between items-center">
-                                            <div class={format!("rounded-full py-1 px-2 flex-row gap-1 text-white {} ", if ticket.clone().status == "Close"{ " bg-success" } else { "bg-warning" })}>
+                                            <div class={format!("rounded-full py-1 px-2 flex-row gap-1 text-white {} ", if ticket.clone().status == "Closed"{ " bg-success" } else { "bg-warning" })}>
                                                 {ticket.clone().status}
                                             </div>
                                         </div>
@@ -307,31 +321,32 @@ fn status_confirm_modal(props: &StatusModalProps) -> Html {
 
     let token = auth_store.token.clone();
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let update_status_handler = {
         let on_ok = props.on_ok_response.clone();
         let on_handle_tickets = props.fetch_handle_tickets.clone();
         let ticket = props.ticket.clone();
         let token = token.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_event: MouseEvent| {
             let on_ok = on_ok.clone();
             let on_handle_tickets = on_handle_tickets.clone();
             let ticket = ticket.clone();
             let token = token.clone();
+            let add_toast = add_toast.clone();
             spawn_local(async move {
                 if !ticket.id.is_empty() && !ticket.status.is_empty() {
-                    let response = update_ticket_status(
-                        token,
-                        UpdateTicket {
-                            id: ticket.id.clone(),
-                            status: ticket.status.clone(),
-                        },
-                    )
-                    .await;
+                    let response = update_ticket_status(token, UpdateTicket {
+                        id: ticket.id.clone(),
+                        status: ticket.status.clone(),
+                    }).await;
 
                     match response {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_tickets.emit(());
+                            add_toast.emit(format!("Ticket status {}.", ticket.status.to_lowercase()));
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }

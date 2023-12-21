@@ -39,7 +39,7 @@ pub fn preprocess_csv_string(data: &str) -> String {
     processed_lines.join("\n")
 }
 
-pub fn download_csv_file(csv_content: &str) {
+pub fn download_csv_file(csv_content: &str, add_toast: Callback<String>) {
     let csv_string = preprocess_csv_string(csv_content);
 
     let bytes = csv_string.as_bytes();
@@ -80,6 +80,7 @@ pub fn download_csv_file(csv_content: &str) {
         html_element.click();
     }
 
+    add_toast.emit("File exported.".to_string());
     // Revoke the URL to free up resources
     Url::revoke_object_url(&url).expect("Failed to revoke URL");
 }

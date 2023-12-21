@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use web_sys::{ wasm_bindgen::JsCast, HtmlSelectElement, HtmlElement };
-// use gloo_console::log;
+use gloo_console::log;
 use crate::render_svg;
 
 #[derive(Clone, Properties, PartialEq, Default)]
@@ -65,7 +65,7 @@ pub fn paginator(props: &PaginatorProps) -> Html {
         ),
         pagination_data.total_items.clone()
     );
-    let page_numbers = vec![1, 2, 3, 4, 5];
+    let page_numbers = vec![0, 1, 2, 3, 4];
 
     let max: i32 = pagination_data.total_items.clone();
     let limit_per_page: Vec<i32> = vec![1; max.try_into().unwrap()];
@@ -81,7 +81,7 @@ pub fn paginator(props: &PaginatorProps) -> Html {
                 } else {
                     if previous_page != current_page && current_page > 0 {
                         update_pagination.emit(PaginationFucProps {
-                            name: "page".to_string(),
+                            name: "current_page".to_string(),
                             value: previous_page,
                         })
                     }
@@ -101,8 +101,9 @@ pub fn paginator(props: &PaginatorProps) -> Html {
                 if next_page > total_pages {
                 } else {
                     if next_page != current_page && current_page > 0 {
+                        log!(next_page.clone());
                         update_pagination.emit(PaginationFucProps {
-                            name: "page".to_string(),
+                            name: "current_page".to_string(),
                             value: next_page,
                         })
                     }
@@ -142,11 +143,12 @@ pub fn paginator(props: &PaginatorProps) -> Html {
                 <select onchange={handle_change_limit.clone()} class="focus:outline-none p-1 border-grey-shade-6 rounded">
                     {
                         limit_per_page.iter().enumerate().map(|(index, _)| {
+                            let index: i32 = (index + 1).try_into().unwrap();
                             html!{
-                                <option>{index + 1}</option>
+                                <option selected={pagination_data.current_page.clone() == index}>{index}</option>
                             }
                         }).collect::<Html>()
-                        }
+                    }
                 </select>
                 <span onclick={handle_previous_page} class={if has_previous_page(pagination_data.current_page.clone()) {"cursor-pointer"} else {"cursor-not-allowed"}}>
                     {html! { render_svg!("ic:round-arrow-left", color="#000000",width="24px")}}
@@ -198,18 +200,17 @@ pub fn pagination(props: &PaginationProps) -> Html {
     let page_numbers: Vec<Html> = props.page_numbers
         .iter()
         .map(|&page_num| {
-            let number = calculate_page(page_num.clone(), props.current_page.clone());
+            let number = page_num.clone();
             html! {
                 <>
                     {
-                        if calculate_page(page_num.clone(), props.current_page.clone()) > 0 &&
-                        calculate_page(page_num.clone(), props.current_page.clone()) <= props.total_pages.clone() {
+                        if calculate_page(number.clone(), props.current_page.clone()) > 0 && calculate_page(number.clone(), props.current_page.clone()) <= props.total_pages.clone() {
                             html! {
-                                <li data-id={number.to_string()} onclick={handle_set_current_page.clone()} class={format!("py-1 px-2 rounded-sm cursor-pointer {}", if page_num == props.current_page.clone() { active_style } else { "hover:bg-grey-shade-9" })}>
+                                <li data-id={format!("{}", if calculate_page(number.clone(), props.current_page.clone()) <= props.total_pages.clone() {calculate_page(number.clone(), props.current_page.clone()).to_string()} else {"".to_string()})} onclick={handle_set_current_page.clone()} class={format!("py-1 px-2 rounded-sm cursor-pointer {}", if calculate_page(number.clone(), props.current_page.clone()) == props.current_page.clone() { active_style } else { "hover:bg-grey-shade-9" })}>
                                     {
-                                        if calculate_page(page_num.clone(), props.current_page.clone()) <= props.total_pages.clone() 
-                                            && calculate_page(page_num.clone(), props.current_page.clone()) > 0 {
-                                            calculate_page(page_num.clone(), props.current_page.clone())
+                                        if calculate_page(number.clone(), props.current_page.clone()) <= props.total_pages.clone() 
+                                            && calculate_page(number.clone(), props.current_page.clone()) > 0 {
+                                                calculate_page(number.clone(), props.current_page.clone())
                                         } else {
                                             0
                                         }
@@ -231,14 +232,3 @@ pub fn pagination(props: &PaginationProps) -> Html {
         </ul>
     }
 }
-
-// {`w-8 h-8 hover:bg-[#481699] hover:text-[#F6F5FF] text-sm rounded ${
-//     calculatePage(i) <= totalPages &&
-//     calculatePage(i) > 0
-//       ? 'cursor-pointer '
-//       : 'cursor-default'
-//   } ${
-//     calculatePage(i) == page
-//       ? `bg-[#481699] text-[#F6F5FF]`
-//       : `hover:bg-[#481699] hover:text-[#F6F5FF]`
-//   }`}

@@ -1,20 +1,26 @@
 use crate::{
     apis::notification::{
-        create_notification, delete_notification, fetch_notification, fetch_notifications,
-        update_notification, Notification, NotificationResponse,
+        create_notification,
+        delete_notification,
+        fetch_notification,
+        fetch_notifications,
+        update_notification,
+        Notification,
+        NotificationResponse,
     },
     components::organisms::{
-        export_button::{ExportButton, download_csv_file},
-        paginator::{PaginationDataProps, PaginationFucProps, Paginator},
+        export_button::{ ExportButton, download_csv_file },
+        paginator::{ PaginationDataProps, PaginationFucProps, Paginator },
     },
     render_svg,
     utils::format_dates::format_date_to_readable,
     stores::auth_store::AuthStore,
+    ToastProps,
 };
 use gloo_console::log;
 use std::ops::Deref;
-use web_sys::{wasm_bindgen::JsCast, HtmlElement, HtmlInputElement};
-use yew::{platform::spawn_local, prelude::*};
+use web_sys::{ wasm_bindgen::JsCast, HtmlElement, HtmlInputElement };
+use yew::{ platform::spawn_local, prelude::* };
 use yewdux::prelude::*;
 
 #[function_component(Notifications)]
@@ -112,7 +118,11 @@ pub fn notifications() -> Html {
         let search_text = cloned_search_text.clone();
         let token = token.clone();
         spawn_local(async move {
-            let response = fetch_notifications(token, pagination.per_page, search_text.to_string()).await;
+            let response = fetch_notifications(
+                token,
+                pagination.deref().clone(),
+                search_text.to_string()
+            ).await;
 
             match response {
                 Ok(response) => {
@@ -167,21 +177,20 @@ pub fn notifications() -> Html {
     let cloned_search_text = search_text.clone();
     let cloned_initial = initial.clone();
     let search_text_changed = Callback::from(move |event: Event| {
-        let value = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .value();
+        let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
         cloned_initial.set(true);
         cloned_search_text.set(value);
     });
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let export = {
         let notifications = notifications.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_: MouseEvent| {
             let mut csv_data =
-                "Notification Message|Status|Offer available from|Offer available until|Created on"
-                    .to_string();
+                "Notification Message|Status|Offer available from|Offer available until|Created on".to_string();
+            let add_toast = add_toast.clone();
 
             for notification in notifications.iter() {
                 let data: String = format!(
@@ -195,7 +204,7 @@ pub fn notifications() -> Html {
                 csv_data = csv_data + data.as_str();
             }
 
-            download_csv_file(csv_data.as_str())
+            download_csv_file(csv_data.as_str(), add_toast)
         })
     };
 
@@ -203,7 +212,7 @@ pub fn notifications() -> Html {
         let onfetch = fetch_handle_notifications.clone();
         let pagination = pagination.clone();
         let search_text = search_text.clone();
-        use_effect_with((pagination.clone(),search_text.clone()), move |_| {
+        use_effect_with((pagination.clone(), search_text.clone()), move |_| {
             if *initial {
                 onfetch(());
             }
@@ -381,21 +390,9 @@ fn edit_modal(props: &ModalProps) -> Html {
     let cloned_state = state.clone();
     let state_changed = Callback::from(move |event: Event| {
         let mut data = cloned_state.deref().clone();
-        let value = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .value();
-        let name = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .name();
-        let checked = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .checked();
+        let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
+        let name = event.target().unwrap().unchecked_into::<HtmlInputElement>().name();
+        let checked = event.target().unwrap().unchecked_into::<HtmlInputElement>().checked();
 
         match name.as_str() {
             "description" => {
@@ -428,18 +425,22 @@ fn edit_modal(props: &ModalProps) -> Html {
 
     let token = auth_store.token.clone();
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let save_notification_handler = {
         let st = (*state).clone();
         let on_ok = props.on_ok_response.clone();
         let on_handle_notifications = props.fetch_handle_notifications.clone();
         let notification_id = props.notification_id.clone();
         let token = token.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_event: MouseEvent| {
             let notification: Notification = st.clone();
             let on_ok = on_ok.clone();
             let on_handle_notifications = on_handle_notifications.clone();
             let notification_id = notification_id.clone();
             let token = token.clone();
+            let add_toast = add_toast.clone();
             spawn_local(async move {
                 if !notification_id.is_empty() {
                     let response = update_notification(token, notification, notification_id).await;
@@ -448,6 +449,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_notifications.emit(());
+                            add_toast.emit("Notification updated succesfully.".to_string());
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }
@@ -458,6 +460,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_notifications.emit(());
+                            add_toast.emit("Notification created succesfully.".to_string());
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }
@@ -471,7 +474,7 @@ fn edit_modal(props: &ModalProps) -> Html {
         let notification = cloned_notification.clone();
         let token = token.clone();
         spawn_local(async move {
-            let response = fetch_notification(token,id).await;
+            let response = fetch_notification(token, id).await;
 
             match response {
                 Ok(response) => {
@@ -589,21 +592,24 @@ struct DeleteModalProps {
 
 #[function_component(DeleteModal)]
 fn delete_modal(props: &DeleteModalProps) -> Html {
-
     let (auth_store, _) = use_store::<AuthStore>();
 
     let token = auth_store.token.clone();
+
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
 
     let delete_notification_handler = {
         let on_ok = props.on_ok_response.clone();
         let on_handle_notifications = props.fetch_handle_notifications.clone();
         let notification_id = props.notification_id.clone();
         let token = token.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_event: MouseEvent| {
             let on_ok = on_ok.clone();
             let on_handle_notifications = on_handle_notifications.clone();
             let notification_id = notification_id.clone();
             let token = token.clone();
+            let add_toast = add_toast.clone();
             spawn_local(async move {
                 if !notification_id.is_empty() {
                     let response = delete_notification(token, notification_id).await;
@@ -612,6 +618,7 @@ fn delete_modal(props: &DeleteModalProps) -> Html {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_notifications.emit(());
+                            add_toast.emit("Notification deleted successfully.".to_string())
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }

@@ -1,5 +1,8 @@
 use super::APP_HOST;
-use crate::utils::format_dates::format_date_for_backend;
+use crate::{
+    components::organisms::paginator::PaginationDataProps,
+    utils::format_dates::format_date_for_backend,
+};
 use reqwasm::{http::Request, Error};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -101,12 +104,12 @@ pub async fn update_notification(
 
 pub async fn fetch_notifications(
     token: String,
-    per_page: i32,
+    pagination: PaginationDataProps,
     search_text: String,
 ) -> Result<NotificationsResponse, Error> {
     let response = Request::get(&format!(
-        "{}api/notifications?limit={}&name={}",
-        APP_HOST, per_page, search_text
+        "{}api/notifications?limit={}&page={}&name={}",
+        APP_HOST, pagination.per_page, pagination.current_page, search_text
     ))
     .header("Content-Type", "application/json")
     .header("Authorization", &format!("Bearer {}", token))
@@ -116,7 +119,10 @@ pub async fn fetch_notifications(
     response.json::<NotificationsResponse>().await
 }
 
-pub async fn fetch_notification(token: String, notification_id: String) -> Result<NotificationResponse, Error> {
+pub async fn fetch_notification(
+    token: String,
+    notification_id: String,
+) -> Result<NotificationResponse, Error> {
     let response = Request::get(&format!(
         "{}api/notifications/{}",
         APP_HOST, notification_id

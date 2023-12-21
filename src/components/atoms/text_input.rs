@@ -50,7 +50,7 @@ pub fn text_input(props: &TextInputProps) -> Html {
             //     width="18px"
             //     height="18px"
             // />
-            <span>{html! { render_svg!("mdi:user", color="#949494", width="18px")}} </span>
+            // <span>{html! { render_svg!("mdi:user", color="#949494", width="18px")}} </span>
 
             <input
                 id={id}

@@ -101,3 +101,39 @@ toggle-switch {
     20px
   ); /* Adjust the distance the switch handle moves when checked */
 }
+
+
+.hideMe {
+  -webkit-animation: cssAnimation 4s forwards; 
+  animation: cssAnimation 4s forwards;
+}
+@keyframes cssAnimation {
+  0%   {display: block;}
+  90%  {display: block;}
+  100% {display: none;}
+}
+@-webkit-keyframes cssAnimation {
+  0%   {display: block;}
+  90%  {display: block;}
+  100% {display: none;}
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #212124;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: black;
+}

@@ -1,25 +1,28 @@
 use crate::{
     apis::integration::{
-        create_integration, delete_integration, fetch_integration, fetch_integrations,
-        update_integration, Integration, IntegrationResponse,
+        create_integration,
+        delete_integration,
+        fetch_integration,
+        fetch_integrations,
+        update_integration,
+        Integration,
+        IntegrationResponse,
     },
     components::{
-        atoms::{
-            label::{Label, LabelStyle},
-            text_input::TextInput,
-        },
+        atoms::{ label::{ Label, LabelStyle }, text_input::TextInput },
         organisms::{
-            export_button::{download_csv_file, ExportButton},
-            paginator::{PaginationDataProps, PaginationFucProps, Paginator},
+            export_button::{ download_csv_file, ExportButton },
+            paginator::{ PaginationDataProps, PaginationFucProps, Paginator },
         },
     },
     render_svg,
     stores::auth_store::AuthStore,
+    ToastProps,
 };
 use gloo_console::log;
 use std::ops::Deref;
-use web_sys::{wasm_bindgen::JsCast, HtmlElement, HtmlInputElement};
-use yew::{platform::spawn_local, prelude::*};
+use web_sys::{ wasm_bindgen::JsCast, HtmlElement, HtmlInputElement };
+use yew::{ platform::spawn_local, prelude::* };
 use yewdux::prelude::*;
 
 #[function_component(Integrations)]
@@ -108,11 +111,7 @@ pub fn integrations() -> Html {
     let cloned_search_text = search_text.clone();
     let cloned_initial = initial.clone();
     let search_text_changed = Callback::from(move |event: Event| {
-        let value = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .value();
+        let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
         cloned_initial.set(true);
         cloned_search_text.set(value);
     });
@@ -167,30 +166,33 @@ pub fn integrations() -> Html {
                 token,
                 pagination.per_page,
                 pagination.current_page,
-                search_text.to_string(),
-            )
-            .await;
+                search_text.to_string()
+            ).await;
 
             match response {
                 Ok(response) => {
-                    integrations.set(response.data);
+                    integrations.set(response.result);
                     cloned_initial.set(false);
-                    // pagination.set(PaginationDataProps {
-                    //     current_page: response.page,
-                    //     per_page: response.per_page,
-                    //     total_items: response.total,
-                    //     total_pages: response.total_pages,
-                    // })
+                    pagination.set(PaginationDataProps {
+                        current_page: response.page,
+                        per_page: response.per_page,
+                        total_items: response.total,
+                        total_pages: response.total_pages,
+                    });
                 }
                 Err(e) => log!("Error: {}", e.to_string()),
             }
         });
     };
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let export = {
         let integrations = integrations.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_: MouseEvent| {
             let mut csv_data = "Name|API key|Secret key|Status".to_string();
+            let add_toast = add_toast.clone();
 
             for integration in integrations.iter() {
                 let data: String = format!(
@@ -198,12 +200,12 @@ pub fn integrations() -> Html {
                     integration.clone().name,
                     integration.clone().api_key,
                     integration.clone().secret_key,
-                    integration.clone().status,
+                    integration.clone().status
                 );
                 csv_data = csv_data + data.as_str();
             }
 
-            download_csv_file(csv_data.as_str())
+            download_csv_file(csv_data.as_str(), add_toast)
         })
     };
 
@@ -321,11 +323,7 @@ fn card(props: &CardProps) -> Html {
         let apikey_handle = api_key.clone();
 
         Callback::from(move |event: InputEvent| {
-            let value = event
-                .target()
-                .unwrap()
-                .unchecked_into::<HtmlInputElement>()
-                .value();
+            let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
 
             apikey_handle.set(value.clone());
         })
@@ -343,11 +341,7 @@ fn card(props: &CardProps) -> Html {
         let secretkey_handle = secret_key.clone();
 
         Callback::from(move |event: InputEvent| {
-            let value = event
-                .target()
-                .unwrap()
-                .unchecked_into::<HtmlInputElement>()
-                .value();
+            let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
 
             secretkey_handle.set(value.clone());
         })
@@ -428,7 +422,7 @@ fn card(props: &CardProps) -> Html {
             </div>
 
             <div class="flex space-x-4  items-center justify-start p-0 rounded-sm">
-                <div  class="bg-success flex capitalize items-center rounded-lg px-3 py-1 text-grey-shade-14 text-14 font-400">
+                <div  class={format!("flex capitalize items-center rounded-lg px-3 py-1 text-grey-shade-14 text-14 font-400 {}", if integration.clone().status == "Active" {"bg-success"} else {"bg-warning"})}>
                     {integration.clone().status}
                 </div>
             </div>
@@ -455,21 +449,9 @@ fn edit_modal(props: &ModalProps) -> Html {
     let cloned_integration = integration.clone();
     let state_changed = Callback::from(move |event: Event| {
         let mut data = cloned_integration.deref().clone();
-        let value = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .value();
-        let name = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .name();
-        let checked = event
-            .target()
-            .unwrap()
-            .unchecked_into::<HtmlInputElement>()
-            .checked();
+        let value = event.target().unwrap().unchecked_into::<HtmlInputElement>().value();
+        let name = event.target().unwrap().unchecked_into::<HtmlInputElement>().name();
+        let checked = event.target().unwrap().unchecked_into::<HtmlInputElement>().checked();
 
         match name.as_str() {
             "api_key" => {
@@ -485,7 +467,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                 if checked == true {
                     data.status = "Active".to_string();
                 } else {
-                    data.status = "Inactive".to_string();
+                    data.status = "InActive".to_string();
                 }
             }
             _ => (),
@@ -493,18 +475,22 @@ fn edit_modal(props: &ModalProps) -> Html {
         cloned_integration.set(data);
     });
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let save_integration_handler = {
         let cloned_integration = (*integration).clone();
         let on_ok = props.on_ok_response.clone();
         let on_handle_integrations = props.fetch_handle_integrations.clone();
         let integration_id = props.integration_id.clone();
         let token = token.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_event: MouseEvent| {
             let integration: Integration = cloned_integration.clone();
             let on_ok = on_ok.clone();
             let on_handle_integrations = on_handle_integrations.clone();
             let integration_id = integration_id.clone();
             let token = token.clone();
+            let add_toast = add_toast.clone();
             spawn_local(async move {
                 if !integration_id.is_empty() {
                     let response = update_integration(token, integration, integration_id).await;
@@ -513,6 +499,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_integrations.emit(());
+                            add_toast.emit("Provider updated successfully.".to_string());
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }
@@ -523,6 +510,7 @@ fn edit_modal(props: &ModalProps) -> Html {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_integrations.emit(());
+                            add_toast.emit("Provider created successfully.".to_string());
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }
@@ -683,16 +671,20 @@ fn delete_modal(props: &DeleteModalProps) -> Html {
 
     let token = auth_store.token.clone();
 
+    let toasts_data = use_context::<ToastProps>().expect("no ctx found");
+
     let delete_integration_handler = {
         let on_ok = props.on_ok_response.clone();
         let on_handle_integrations = props.fetch_handle_integrations.clone();
         let integration_id = props.integration_id.clone();
         let token = token.clone();
+        let add_toast = toasts_data.add_toast.clone();
         Callback::from(move |_event: MouseEvent| {
             let on_ok = on_ok.clone();
             let on_handle_integrations = on_handle_integrations.clone();
             let integration_id = integration_id.clone();
             let token = token.clone();
+            let add_toast = add_toast.clone();
             spawn_local(async move {
                 if !integration_id.is_empty() {
                     let response = delete_integration(token, integration_id).await;
@@ -701,6 +693,7 @@ fn delete_modal(props: &DeleteModalProps) -> Html {
                         Ok(_response) => {
                             on_ok.emit(());
                             on_handle_integrations.emit(());
+                            add_toast.emit("Provider deleted successfully.".to_string())
                         }
                         Err(e) => log!("Error: ", e.to_string()),
                     }
